@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GrowBolt SDK Playground</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="wrapper">
+    <header>
+      <h1>GrowBolt SDK Playground</h1>
+      <p class="subtitle">Lightweight test harness for the GrowBolt Web SDK</p>
+    </header>
+
+    <section class="controls">
+      <button id="checkBtn" class="btn">Check SDK</button>
+      <button id="initBtn" class="btn primary">Initialize SDK</button>
+      <button id="destroyBtn" class="btn danger">Destroy SDK</button>
+    </section>
+
+    <section class="status-row">
+      <strong>Status:</strong> <span id="status">Unknown</span>
+    </section>
+
+    <section class="log-wrap">
+      <div class="log-header">Logs</div>
+      <div id="log" class="log"></div>
+    </section>
+  </div>
+
+  <!-- Load built SDK: try local playground copy first, then fall back to project dist -->
+  <script>
+    (function(){
+      function load(src, onload, onerror){
+        var s = document.createElement('script');
+        s.src = src;
+        s.onload = onload;
+        s.onerror = onerror;
+        document.head.appendChild(s);
+      }
+
+      // try playground copy
+      load('./dist-sdk.js', function(){
+        console.log('Loaded ./dist-sdk.js');
+      }, function(){
+        console.warn('./dist-sdk.js not found, falling back to ../dist/sdk.js');
+        load('../dist/sdk.js', function(){ console.log('Loaded ../dist/sdk.js'); }, function(){ console.error('Failed to load SDK bundle from both locations'); });
+      });
+    })();
+  </script>
+
+  <script src="app.js"></script>
+</body>
+</html>
