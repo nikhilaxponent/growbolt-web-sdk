@@ -20,6 +20,7 @@
         if (a === null) return 'null';
         if (typeof a === 'undefined') return 'undefined';
         if (typeof a === 'function') return `function ${a.name || '<anonymous>'}()`;
+        if (a instanceof Error) return `${a.name}: ${a.message}`;
         if (typeof a !== 'object') return String(a);
         // For objects, show keys and method signatures to avoid empty '{}'
         const obj = a;
@@ -69,10 +70,17 @@
     try{
       const initFn = window.GrowBolt.init;
       if(typeof initFn !== 'function'){ appendLog('ERROR','GrowBolt.init is not a function'); return; }
-      const result = initFn();
+      // Call init with proper context binding and test config
+      const result = initFn.call(window.GrowBolt, {
+        apiKey: 'test-key-for-playground-12345',
+        baseUrl: 'http://localhost:8000'
+      });
       if(result && typeof result.then === 'function'){
         appendLog('INFO','init returned a Promise - waiting');
-        await result;
+        const res = await result;
+        appendLog('SUCCESS', 'init response:', res);
+      } else {
+        appendLog('INFO','init returned:', result);
       }
       appendLog('SUCCESS','GrowBolt.init() completed');
       setStatus('Initialized');
@@ -85,10 +93,13 @@
     try{
       const destroyFn = window.GrowBolt.destroy;
       if(typeof destroyFn !== 'function'){ appendLog('ERROR','GrowBolt.destroy is not a function'); return; }
-      const result = destroyFn();
+      const result = destroyFn.call(window.GrowBolt);
       if(result && typeof result.then === 'function'){
         appendLog('INFO','destroy returned a Promise - waiting');
-        await result;
+        const res = await result;
+        appendLog('SUCCESS', 'destroy response:', res);
+      } else {
+        appendLog('INFO','destroy returned:', result);
       }
       appendLog('SUCCESS','GrowBolt.destroy() completed');
       setStatus('Destroyed');
@@ -98,6 +109,18 @@
   // initial state
   appendLog('INFO','Playground loaded.');
   setStatus('Ready');
+  
+  // Auto-check SDK on load
+  setTimeout(() => {
+    appendLog('ACTION', 'Auto-checking SDK on load');
+    if(isSDKPresent()){
+      appendLog('SUCCESS', 'SDK present on window');
+      appendLog('FOUND', window.GrowBolt);
+      setButtonsState();
+    } else {
+      appendLog('ERROR', 'SDK not found on window');
+    }
+  }, 500);
   setButtonsState();
 
   // Auto-check after load to indicate whether SDK is already present

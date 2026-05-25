@@ -1,0 +1,178 @@
+.gb-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;padding:24px;z-index:99999}
+.gb-modal{background:#fff;border-radius:18px;max-width:1100px;width:100%;max-height:90vh;overflow:auto;box-shadow:0 20px 50px rgba(2,6,23,0.25)}
+.gb-modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid #f3f4f6}
+.gb-modal-title{font-size:20px;font-weight:800;color:#0f172a}
+.gb-modal-close{background:transparent;border:0;font-size:20px;cursor:pointer}
+.gb-modal-body{padding:20px 24px}
+
+/* Modal logo sizing to preserve aspect ratio and show full logo */
+.modal-logo{height:48px;width:auto;object-fit:contain;display:block}
+
+/* SDK Details page styles */
+.sdk-details-root{background:#f5f5f7}
+.sdk-banner{position:absolute;top:0;left:0;right:0;height:45vh;min-height:200px;border-top-left-radius:18px;border-top-right-radius:18px;overflow:hidden;z-index:0;margin:0;padding:0}
+.sdk-banner-bg{position:absolute;inset:0;background:linear-gradient(180deg,#4b2a87,#6b36a6);opacity:0.85;z-index:0;margin:0;padding:0}
+.sdk-banner-img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;margin:0;padding:0}
+.sdk-banner-center{height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;font-weight:800;z-index:1}
+
+.gb-modal.sdk-details-modal .gb-modal-body{padding:0}
+
+/* lift banner to overlap the modal header so it sits at the very top */
+.gb-modal.sdk-details-modal .sdk-banner{top:-66px}
+
+/* back button inside details modal */
+.details-back-btn{position:absolute;left:20px;top:18px;z-index:5;background:#fff;border:0;width:25px;height:25px;border-radius:999px;box-shadow:0 6px 18px rgba(2,6,23,0.12);display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:800;font-size:18px}
+.details-back-btn:hover{transform:translateY(-2px)}
+
+.sdk-details-root{position:relative;padding-top:40vh;background:#f5f5f7}
+
+.sdk-details-container{position:relative;z-index:2;max-width:980px;margin:0 auto;padding:28px 20px;padding-bottom:80px}
+.sdk-overlap-wrapper{margin-top:-84px;padding:0 12px}
+
+/* Section spacing */
+.sdk-section{margin-bottom:15px}
+
+/* Slightly larger header card radius and subtle hover lift */
+.offer-header-card{border-radius:16px;transition:transform 180ms ease,box-shadow 180ms ease}
+.offer-header-card:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(2,6,23,0.12)}
+.offer-header-card{display:flex;align-items:center;justify-content:space-between;background:#fff;padding:18px;border-radius:12px;box-shadow:0 12px 30px rgba(2,6,23,0.08); margin-bottom: 15px;}
+.offer-header-left{display:flex;align-items:center;gap:12px}
+.offer-header-logo{width:64px;height:64px;border-radius:12px;object-fit:cover}
+.offer-header-title{font-size:26px;font-weight:600}
+.offer-header-sub{color:#6b7280}
+.offer-header-right{display:flex;align-items:center;gap:12px}
+.offer-reward{color:#059669;font-weight:800;font-size:20px}
+
+.reward-badge{background:linear-gradient(90deg,#ffd26b,#ffb020);color:#7a3b00;padding:6px 10px;border-radius:999px;font-weight:700}
+.reward-badge-sm{padding:4px 8px;font-size:12px}
+
+.instruction-card{background:#fff;padding:16px;border-radius:12px;}
+.instruction-card-inner{display:flex;gap:16px;align-items:flex-start}
+.instruction-main{flex:1}
+.instruction-title{font-weight:800;margin-bottom:8px}
+.instruction-list{padding-left:18px}
+.instruction-item{margin-bottom:8px;color:#374151}
+.instruction-right{display:flex;align-items:center}
+
+.important-note{border:2px solid #f6c46b;background:#fff7ed;padding:18px;border-radius:12px}
+.important-note-inner{display:flex;gap:12px;align-items:flex-start}
+.important-icon{font-size:20px}
+.important-title{font-weight:800;color:#b45309}
+.important-body{color:#92400e}
+
+/* Make CTA fixed/absolute within the modal for consistent placement */
+.gb-modal.sdk-details-modal{position:relative}
+.sticky-cta-wrap{position:absolute;left:50%;transform:translateX(-50%);bottom:20px;width:calc(100% - 64px);max-width:920px;display:flex;justify-content:center;padding:4px;pointer-events:none}
+.sticky-cta{background:linear-gradient(90deg,#16c784,#0f8a5a);color:#fff;padding:16px 36px;border-radius:999px;border:none;box-shadow:0 16px 40px rgba(16,185,129,0.18);font-weight:800;width:100%;max-width:720px;pointer-events:auto}
+.cta-text{font-size:18px}
+
+.gb-offer-card{display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;background:#fff;border:1px solid #f0f0f0;cursor:pointer}
+.gb-offer-card{padding:14px;border-radius:12px;background:#fff;border:1px solid #f3f4f6;box-shadow:0 8px 18px rgba(15,23,42,0.06);transition:transform 160ms ease,box-shadow 160ms ease;font-family:Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
+.gb-offer-card.compact{flex-direction:column;align-items:flex-start;width:190px}
+
+.gb-offer-card:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(15,23,42,0.09)}
+
+/* compact card internals */
+.gb-offer-card.compact img{width:100%;height:140px;border-radius:10px;object-fit:cover}
+.gb-offer-card .text-sm{font-size:13px}
+.gb-offer-card .text-12{font-size:12px}
+
+/* earn pill for compact card */
+.gb-offer-card .gb-offer-earn{display:inline-block;margin-top:8px;background:linear-gradient(90deg,#16c784,#0f8a5a);color:#fff;padding:8px 14px;border-radius:999px;font-weight:700;box-shadow:0 8px 18px rgba(16,185,129,0.12)}
+.gb-offer-logo{width:64px;height:64px;object-fit:cover;border-radius:8px}
+.gb-offer-content{flex:1}
+.gb-offer-title{font-weight:600}
+.gb-offer-sub{font-size:12px;color:#666}
+.gb-offer-earn{background:linear-gradient(90deg,#09b67a,#047c52);color:#fff;padding:6px 14px;border-radius:20px;font-weight:700;box-shadow:0 2px 6px rgba(4,92,62,0.12)}
+
+.gb-compact-scroll{display:flex;gap:12px;overflow-x:auto;padding:6px 0}
+.gb-compact-item{flex:0 0 auto}
+.gb-list-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.list-item{background:#fff;border-radius:12px;padding:14px;border:1px solid #f3f4f6;display:flex;align-items:center;gap:16px;box-shadow:0 8px 18px rgba(15,23,42,0.04)}
+.list-item .logo{width:64px;height:64px;border-radius:10px;object-fit:cover}
+.list-item .meta{flex:1}
+.list-item .title{font-size:18px;font-weight:800;color:#0f172a}
+.list-item .subtitle{font-size:13px;color:#6b7280}
+.list-item .earn-pill{ background:linear-gradient(90deg,#16c784,#0f8a5a);color:#fff;padding:10px 18px;border-radius:999px;font-weight:800;box-shadow:0 8px 18px rgba(16,185,129,0.12)}
+
+/* small orange timer badge */
+.pill-timer{display:inline-block;background:#ffb020;color:#0f172a;padding:4px 8px;border-radius:999px;font-weight:700;font-size:12px;margin-left:8px}
+
+/* utility to apply card-like shadow for compact grid */
+.shadow-card{box-shadow:0 8px 18px rgba(15,23,42,0.06)}
+.gb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+
+/* Tailwind-like utility classes used by SDKCard (scoped globally in SDK preview) */
+.bg-white{background:#fff}
+.bg-bg-light-green{background-color:rgb(22,199,132)}
+.text-white{color:#fff}
+.border{border:1px solid rgba(0,0,0,0.08)}
+.border-white{border:1px solid #fff}
+.px-6{padding-left:1.5rem;padding-right:1.5rem}
+.py-3{padding-top:0.75rem;padding-bottom:0.75rem}
+.rounded-lg{border-radius:0.5rem}
+.rounded-2xl{border-radius:1rem}
+.rounded-md{border-radius:0.375rem}
+.rounded-full{border-radius:9999px}
+.shadow-sm{box-shadow:0 1px 2px rgba(16,24,40,0.05)}
+.p-2{padding:0.5rem}
+.p-4{padding:1rem}
+.p-6{padding:1.5rem}
+.pt-2{padding-top:0.5rem}
+.py-1{padding-top:0.25rem;padding-bottom:0.25rem}
+.cursor-pointer{cursor:pointer}
+.flex{display:flex}
+.flex-col{flex-direction:column}
+.items-start{align-items:flex-start}
+.items-center{align-items:center}
+.justify-start{justify-content:flex-start}
+.justify-between{justify-content:space-between}
+.gap-4{gap:1rem}
+.gap-2{gap:0.5rem}
+.w-40{width:10rem}
+.w-48{width:12rem}
+.w-35{width:8.75rem}
+.h-35{height:8.75rem}
+.w-16{width:4rem}
+.h-16{height:4rem}
+.object-cover{object-fit:cover}
+.text-sm{font-size:0.875rem}
+.text-lg{font-size:1.125rem}
+.font-semibold{font-weight:600}
+.font-medium{font-weight:500}
+.font-bold{font-weight:700}
+.text-gray-800{color:#1f2937}
+.text-gray-500{color:#6b7280}
+.text-emerald-600{color:#059669}
+.mb-2{margin-bottom:0.5rem}
+.mb-4{margin-bottom:1rem}
+.mb-6{margin-bottom:1.5rem}
+.max-w-6xl{max-width:72rem}
+.max-h-\[90vh\]{max-height:90vh}
+.w-full{width:100%}
+.shrink-0{flex-shrink:0}
+.grid{display:grid}
+.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}
+@media(min-width:768px){
+  .md\:grid-cols-2{grid-template-columns:repeat(2, minmax(0,1fr))}
+}
+@media(min-width:1024px){
+  .lg\:grid-cols-2{grid-template-columns:repeat(2, minmax(0,1fr))}
+}
+
+/* Button helpers */
+.px-6{padding-left:1.5rem;padding-right:1.5rem}
+.py-3{padding-top:0.75rem;padding-bottom:0.75rem}
+.transition-all{transition:all 0.2s ease}
+.duration-200{transition-duration:200ms}
+.hover\:brightness-90:hover{filter:brightness(0.9)}
+.hover\:bg-white\/10:hover{background:rgba(255,255,255,0.1)}
+
+/* Primary / outline button styles matching FE */
+.btn-primary{background:linear-gradient(90deg,#16c784,#0f8a5a);color:#fff;border:none;box-shadow:0 6px 18px rgba(16,185,129,0.12);padding:0.5rem 1.25rem}
+.btn-primary:hover{filter:brightness(0.95)}
+.btn-outline{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.12);padding:0.5rem 1.25rem}
+
+/* Card shadow like FE */
+.shadow-card{box-shadow:0 6px 20px rgba(15,23,42,0.06)}
+

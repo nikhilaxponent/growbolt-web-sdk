@@ -1,15 +1,10 @@
 import { SDK } from "./core/SDK";
+import type { GrowBoltSDK } from "./types/sdk";
 
-declare global {
-  interface Window {
-    GrowBolt?: SDK;
-  }
-  // allow attaching to globalThis in non-window environments
-  var GrowBolt: SDK | undefined;
-}
+// Create and expose singleton instance
+const instance: GrowBoltSDK = new SDK();
 
-// Create a single SDK instance and expose it on globalThis for maximum compatibility
-const instance = new SDK();
+// Attach to globalThis for IIFE/browser contexts
 (globalThis as any).GrowBolt = instance;
 
 export default instance;
