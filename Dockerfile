@@ -3,7 +3,8 @@ WORKDIR /app
 
 # install dependencies
 COPY package*.json ./
-RUN npm ci --silent
+# Use `npm install` when `package-lock.json` is not present (safer in CI/buildx)
+RUN npm install --silent
 
 # copy sources and build
 COPY . .
