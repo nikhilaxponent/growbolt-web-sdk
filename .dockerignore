@@ -10,5 +10,4 @@ public
 npm-debug.log
 Dockerfile
 docker-compose.yml
-deploy
 scripts

@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   growbolt-sdk:
@@ -6,7 +6,7 @@ services:
     container_name: growbolt-sdk
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "5001:80"
     environment:
       - VITE_API_URL=${VITE_API_URL:-}
     logging:
