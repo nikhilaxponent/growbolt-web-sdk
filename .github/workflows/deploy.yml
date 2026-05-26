@@ -42,10 +42,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Normalize SERVER_HOST
+        id: normalize_host
+        run: |
+          host="${{ secrets.SERVER_HOST }}"
+          # strip scheme if present
+          host="${host#https://}"
+          host="${host#http://}"
+          # keep only hostname (strip any trailing path)
+          host="${host%%/*}"
+          echo "host=$host" >> "$GITHUB_OUTPUT"
+
       - name: Copy docker-compose to server
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.SERVER_HOST }}
+          host: ${{ steps.normalize_host.outputs.host }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_SSH_PORT }}
@@ -55,7 +66,7 @@ jobs:
       - name: Copy nginx config to server
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.SERVER_HOST }}
+          host: ${{ steps.normalize_host.outputs.host }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_SSH_PORT }}
@@ -65,7 +76,7 @@ jobs:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.8
         with:
-          host: ${{ secrets.SERVER_HOST }}
+          host: ${{ steps.normalize_host.outputs.host }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_SSH_PORT }}
