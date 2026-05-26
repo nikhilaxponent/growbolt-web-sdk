@@ -74,3 +74,6 @@ coverage/
 *.njsproj
 *.sln
 *.sw?
+
+# Ignore local saved Docker image tarballs
+growbolt-sdk.tar
