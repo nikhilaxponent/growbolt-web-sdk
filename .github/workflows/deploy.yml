@@ -71,7 +71,8 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_SSH_PORT }}
           source: "deploy/nginx/growbolt.conf"
-          target: "/tmp"
+          # copy to an explicit filename to avoid directory vs file ambiguity
+          target: "/tmp/growbolt.conf"
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.8
@@ -109,8 +110,12 @@ jobs:
 
             echo "Applying nginx config..."
             sudo mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled
-            sudo mv /tmp/growbolt.conf /etc/nginx/sites-available/growbolt-sdk
-            sudo ln -sf /etc/nginx/sites-available/growbolt-sdk /etc/nginx/sites-enabled/growbolt-sdk
+            if [ -f /tmp/growbolt.conf ]; then
+              sudo mv /tmp/growbolt.conf /etc/nginx/sites-available/growbolt-sdk
+              sudo ln -sf /etc/nginx/sites-available/growbolt-sdk /etc/nginx/sites-enabled/growbolt-sdk
+            else
+              echo "Warning: /tmp/growbolt.conf not found, skipping nginx config update"
+            fi
 
             echo "Testing nginx..."
             sudo nginx -t
