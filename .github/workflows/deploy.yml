@@ -3,7 +3,7 @@ name: CI Build, Push & Deploy (SDK)
 on:
   push:
     branches:
-      - master
+      - main
 
 permissions:
   contents: read
@@ -87,25 +87,23 @@ jobs:
 
             echo "Running docker-compose..."
             if command -v docker-compose >/dev/null 2>&1; then
-              docker-compose down || true
-              docker-compose pull
-              docker-compose up -d --force-recreate
+              VITE_API_URL='${{ secrets.VITE_API_URL }}' VITE_PUBLIC_URL='${{ secrets.VITE_PUBLIC_URL }}' docker-compose down || true
+              VITE_API_URL='${{ secrets.VITE_API_URL }}' VITE_PUBLIC_URL='${{ secrets.VITE_PUBLIC_URL }}' docker-compose pull
+              VITE_API_URL='${{ secrets.VITE_API_URL }}' VITE_PUBLIC_URL='${{ secrets.VITE_PUBLIC_URL }}' docker-compose up -d --force-recreate
             else
-              docker compose down || true
-              docker compose pull
-              docker compose up -d --force-recreate
+              VITE_API_URL='${{ secrets.VITE_API_URL }}' VITE_PUBLIC_URL='${{ secrets.VITE_PUBLIC_URL }}' docker compose down || true
+              VITE_API_URL='${{ secrets.VITE_API_URL }}' VITE_PUBLIC_URL='${{ secrets.VITE_PUBLIC_URL }}' docker compose pull
+              VITE_API_URL='${{ secrets.VITE_API_URL }}' VITE_PUBLIC_URL='${{ secrets.VITE_PUBLIC_URL }}' docker compose up -d --force-recreate
             fi
 
             echo "Applying nginx config..."
-            sudo rm -f /etc/nginx/sites-enabled/growbolt-sdk || true
-            sudo rm -f /etc/nginx/sites-available/growbolt-sdk || true
-
+            sudo mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled
             sudo mv /tmp/growbolt.conf /etc/nginx/sites-available/growbolt-sdk
             sudo ln -sf /etc/nginx/sites-available/growbolt-sdk /etc/nginx/sites-enabled/growbolt-sdk
 
             echo "Testing nginx..."
             sudo nginx -t
-            sudo systemctl reload nginx
+            sudo systemctl reload nginx || sudo service nginx reload || true
 
             echo "Cleaning unused images..."
             docker image prune -af || true
