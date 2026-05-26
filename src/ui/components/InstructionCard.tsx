@@ -1,5 +1,5 @@
 import React from "react";
-import RewardBadge from "./RewardBadge";
+// import RewardBadge from "./RewardBadge";
 
 type Props = {
   title?: string;

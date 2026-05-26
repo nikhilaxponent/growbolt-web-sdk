@@ -1,6 +1,7 @@
 import React from "react";
 import Modal from "./Modal";
 import OfferList from "./OfferList";
+import SDKFilterBar from "./components/SDKFilterBar";
 import type { OfferModel } from "./types";
 
 type Props = {
@@ -26,6 +27,7 @@ export default function SDKModalPage({
     React.createElement(
       "div",
       { className: "sdk-modal-section" },
+      React.createElement(SDKFilterBar, {}),
       React.createElement(
         "h3",
         { className: "sdk-section-title" },

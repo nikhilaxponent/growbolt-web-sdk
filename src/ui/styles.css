@@ -176,3 +176,59 @@
 /* Card shadow like FE */
 .shadow-card{box-shadow:0 6px 20px rgba(15,23,42,0.06)}
 
+/* Responsive: mobile first adjustments */
+@media (max-width: 640px) {
+  .sdk-banner{height:30vh;min-height:120px}
+  .gb-modal.sdk-details-modal .sdk-banner{top:-48px}
+  .sdk-details-root{padding-top:30vh}
+  .sdk-details-container{padding:16px;padding-bottom:140px}
+  .sdk-overlap-wrapper{margin-top:-56px;padding:0 8px}
+  .offer-header-card{flex-direction:column;align-items:flex-start;padding:14px}
+  .offer-header-left{gap:10px}
+  .offer-header-logo{width:48px;height:48px}
+  .offer-header-title{font-size:18px}
+  .offer-header-right{margin-top:8px}
+  .instruction-card-inner{flex-direction:column}
+  .important-note{padding:14px}
+
+  /* Compact scroll: show two cards per row on small screens */
+  .gb-compact-scroll{overflow-x:auto;gap:12px;padding:8px 0}
+  .gb-compact-item{flex:0 0 46%}
+
+  /* make compact cards full-width in flow */
+  .gb-offer-card.compact{width:100%;align-items:flex-start}
+
+  /* CTA fixed to bottom on mobile for easy reach */
+  .sticky-cta-wrap{position:fixed;left:12px;right:12px;bottom:12px;width:auto;max-width:none;transform:none}
+  .sticky-cta{max-width:none}
+}
+
+/* Tablet adjustments */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .sdk-banner{height:36vh;min-height:150px}
+  .gb-modal.sdk-details-modal .sdk-banner{top:-56px}
+  .sdk-details-root{padding-top:36vh}
+  .sdk-details-container{padding:20px;padding-bottom:160px}
+  .sdk-overlap-wrapper{margin-top:-72px;padding:0 10px}
+  .offer-header-logo{width:56px;height:56px}
+  .offer-header-title{font-size:22px}
+  .gb-compact-item{flex:0 0 40%}
+}
+
+/* SDK Filter bar styles (copied visual intent from FE) */
+.sdk-filter-bar{background:transparent;padding:6px 0}
+.filter-row{display:flex;flex-direction:column;gap:8px}
+.filter-pills{display:flex;gap:10px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;font-weight:700;border:1px solid transparent}
+.pill-inactive{background:#ecfdf5;color:#065f46;border-color:transparent}
+.pill-active{background:#059669;color:#fff;border-color:transparent}
+.pill-icon{display:inline-flex;width:18px;height:18px;align-items:center;justify-content:center}
+.filter-controls{display:flex;gap:10px;align-items:center;margin-top:6px}
+.filter-input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid #e6e6e6}
+.filter-select{padding:10px 12px;border-radius:10px;border:1px solid #e6e6e6}
+
+@media(min-width:768px){
+  .filter-row{flex-direction:row;align-items:center}
+  .filter-controls{margin-top:0}
+}
+

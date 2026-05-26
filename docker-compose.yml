@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  growbolt-sdk:
+    image: ghcr.io/nikhilaxponent/growbolt-sdk:latest
+    container_name: growbolt-sdk
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

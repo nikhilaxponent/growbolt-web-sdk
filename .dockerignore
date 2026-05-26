@@ -1,0 +1,14 @@
+node_modules
+dist
+.git
+*.log
+/.github
+/.vscode
+playground
+public
+/.env
+npm-debug.log
+Dockerfile
+docker-compose.yml
+deploy
+scripts
