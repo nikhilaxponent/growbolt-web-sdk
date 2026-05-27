@@ -15,7 +15,9 @@ RUN npm run build
 
 FROM nginx:stable-alpine AS production
 COPY --from=build /app/dist /usr/share/nginx/html
-COPY deploy/nginx/growbolt.conf /etc/nginx/conf.d/growbolt.conf
+# Use container-specific nginx config which only serves static files.
+# Do NOT copy host proxy/SSL config into the container.
+COPY deploy/nginx/container.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s CMD wget -qO- http://localhost/health || exit 1
