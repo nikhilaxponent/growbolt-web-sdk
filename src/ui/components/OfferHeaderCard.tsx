@@ -26,8 +26,10 @@ export default function OfferHeaderCard({
         </div>
       </div>
       <div className="offer-header-right">
-        {duration && <RewardBadge small>{duration}</RewardBadge>}
-        {reward && <div className="offer-reward">{reward}</div>}
+        <div className="offer-header-right-stack">
+          {duration && <RewardBadge small>{duration}</RewardBadge>}
+          {reward && <div className="offer-reward">{reward}</div>}
+        </div>
       </div>
     </div>
   );

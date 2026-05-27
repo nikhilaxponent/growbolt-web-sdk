@@ -1,5 +1,5 @@
-import React from "react";
-import OfferCard from "./OfferCard";
+import React, { Suspense } from "react";
+const OfferCard = React.lazy(() => import("./OfferCard"));
 import type { OfferModel } from "./types";
 
 type Props = {
@@ -22,7 +22,9 @@ const OfferList: React.FC<Props> = ({
       <div className="gb-compact-scroll">
         {items.map((m) => (
           <div key={m.id} className="gb-compact-item">
-            <OfferCard model={m} onClick={onItemClick} variant="compact" />
+            <Suspense fallback={null}>
+              <OfferCard model={m} onClick={onItemClick} variant="compact" />
+            </Suspense>
           </div>
         ))}
       </div>
@@ -37,7 +39,11 @@ const OfferList: React.FC<Props> = ({
     return (
       <div className="gb-list-grid">
         {items.map((m) => (
-          <OfferCard key={m.id} model={m} onClick={onItemClick} />
+          <div key={m.id}>
+            <Suspense fallback={null}>
+              <OfferCard model={m} onClick={onItemClick} />
+            </Suspense>
+          </div>
         ))}
       </div>
     );

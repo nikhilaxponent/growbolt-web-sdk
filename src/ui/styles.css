@@ -1,9 +1,11 @@
+.gb-root, :root { --gb-gap: 12px; --gb-radius: 12px; --gb-max-width: 1100px; }
+*{box-sizing:border-box}
 .gb-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;padding:24px;z-index:99999}
-.gb-modal{background:#fff;border-radius:18px;max-width:1100px;width:100%;max-height:90vh;overflow:auto;box-shadow:0 20px 50px rgba(2,6,23,0.25)}
+.gb-modal{background:#fff;border-radius:18px;max-width:var(--gb-max-width);width:100%;max-height:90vh;overflow:auto;box-shadow:0 20px 50px rgba(2,6,23,0.25);display:flex;flex-direction:column}
 .gb-modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid #f3f4f6}
 .gb-modal-title{font-size:20px;font-weight:800;color:#0f172a}
 .gb-modal-close{background:transparent;border:0;font-size:20px;cursor:pointer}
-.gb-modal-body{padding:20px 24px}
+.gb-modal-body{padding:20px 24px;overflow:auto}
 
 /* Modal logo sizing to preserve aspect ratio and show full logo */
 .modal-logo{height:48px;width:auto;object-fit:contain;display:block}
@@ -41,6 +43,7 @@
 .offer-header-title{font-size:26px;font-weight:600}
 .offer-header-sub{color:#6b7280}
 .offer-header-right{display:flex;align-items:center;gap:12px}
+.offer-header-right-stack{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 .offer-reward{color:#059669;font-weight:800;font-size:20px}
 
 .reward-badge{background:linear-gradient(90deg,#ffd26b,#ffb020);color:#7a3b00;padding:6px 10px;border-radius:999px;font-weight:700}
@@ -53,6 +56,10 @@
 .instruction-list{padding-left:18px}
 .instruction-item{margin-bottom:8px;color:#374151}
 .instruction-right{display:flex;align-items:center}
+
+/* Instruction header: align title and badge on same row */
+.instruction-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.instruction-header .instruction-title{margin-bottom:0}
 
 .important-note{border:2px solid #f6c46b;background:#fff7ed;padding:18px;border-radius:12px}
 .important-note-inner{display:flex;gap:12px;align-items:flex-start}
@@ -85,9 +92,14 @@
 .gb-offer-sub{font-size:12px;color:#666}
 .gb-offer-earn{background:linear-gradient(90deg,#09b67a,#047c52);color:#fff;padding:6px 14px;border-radius:20px;font-weight:700;box-shadow:0 2px 6px rgba(4,92,62,0.12)}
 
-.gb-compact-scroll{display:flex;gap:12px;overflow-x:auto;padding:6px 0}
-.gb-compact-item{flex:0 0 auto}
+.gb-compact-scroll{display:flex;gap:12px;overflow-x:auto;padding:6px 0;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.gb-compact-item{flex:0 0 auto;scroll-snap-align:center}
 .gb-list-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* Ensure single-column on small screens so All Offers remains readable */
+@media (max-width: 640px) {
+  .gb-list-grid{grid-template-columns:1fr;gap:12px}
+}
 .list-item{background:#fff;border-radius:12px;padding:14px;border:1px solid #f3f4f6;display:flex;align-items:center;gap:16px;box-shadow:0 8px 18px rgba(15,23,42,0.04)}
 .list-item .logo{width:64px;height:64px;border-radius:10px;object-fit:cover}
 .list-item .meta{flex:1}
@@ -133,6 +145,8 @@
 .w-48{width:12rem}
 .w-35{width:8.75rem}
 .h-35{height:8.75rem}
+.w-35{max-width:100%}
+.h-35{max-height:100%}
 .w-16{width:4rem}
 .h-16{height:4rem}
 .object-cover{object-fit:cover}
@@ -183,11 +197,14 @@
   .sdk-details-root{padding-top:30vh}
   .sdk-details-container{padding:16px;padding-bottom:140px}
   .sdk-overlap-wrapper{margin-top:-56px;padding:0 8px}
-  .offer-header-card{flex-direction:column;align-items:flex-start;padding:14px}
-  .offer-header-left{gap:10px}
-  .offer-header-logo{width:48px;height:48px}
-  .offer-header-title{font-size:18px}
-  .offer-header-right{margin-top:8px}
+  /* Keep header horizontal on small screens and center right-stack vertically */
+  .offer-header-card{flex-direction:row;align-items:center;padding:14px}
+  .offer-header-left{gap:10px;flex:1;min-width:0}
+  .offer-header-logo{width:48px;height:48px;flex:0 0 48px}
+  .offer-header-title{font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .offer-header-sub{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .offer-header-right{margin-top:0;width:auto;display:flex;align-items:center}
+  .offer-header-right-stack{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:4px}
   .instruction-card-inner{flex-direction:column}
   .important-note{padding:14px}
 
@@ -198,9 +215,27 @@
   /* make compact cards full-width in flow */
   .gb-offer-card.compact{width:100%;align-items:flex-start}
 
+  /* Keep list items horizontal on mobile but constrain text to avoid overflow */
+  .list-item{flex-direction:row;align-items:center;gap:12px;justify-content:space-between}
+  .list-item .logo{width:56px;height:56px;flex:0 0 56px}
+  .list-item .meta{flex:1;min-width:0;margin:0 12px}
+  .list-item .title{font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .list-item .subtitle{font-size:13px;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .list-item .earn-pill{flex:0 0 auto;margin-left:auto}
+
+  /* scale the utility image sizes down on small screens */
+  .w-35{width:6.25rem}
+  .h-35{height:6.25rem}
+
   /* CTA fixed to bottom on mobile for easy reach */
   .sticky-cta-wrap{position:fixed;left:12px;right:12px;bottom:12px;width:auto;max-width:none;transform:none}
   .sticky-cta{max-width:none}
+
+  /* Make modal cover full viewport on small screens for better UX */
+  .gb-modal-backdrop{align-items:flex-start;padding:0}
+  .gb-modal{border-radius:0;max-width:100%;height:100vh;max-height:100vh;width:100%;display:flex;flex-direction:column}
+  .gb-modal-header{position:sticky;top:0;background:transparent;padding:14px 16px;z-index:5}
+  .gb-modal-body{padding:12px 16px;flex:1;overflow:auto}
 }
 
 /* Tablet adjustments */

@@ -15,8 +15,11 @@ export default function InstructionCard({
   return (
     <div className="instruction-card rounded-xl shadow-card">
       <div className="instruction-card-inner">
-        <div className="instruction-main">
-          <div className="instruction-title">{title}</div>
+        <div className="instruction-main" style={{width: '100%'}}>
+          <div className="instruction-header" style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
+            <div className="instruction-title">{title}</div>
+            {rightBadge && <div className="instruction-right">{rightBadge}</div>}
+          </div>
           <ol className="instruction-list">
             {items.map((it, i) => (
               <li key={i} className="instruction-item">
@@ -25,7 +28,6 @@ export default function InstructionCard({
             ))}
           </ol>
         </div>
-        {rightBadge && <div className="instruction-right">{rightBadge}</div>}
       </div>
     </div>
   );
