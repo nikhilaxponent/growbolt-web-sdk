@@ -14,10 +14,14 @@ const OfferList: React.FC<Props> = ({
   onItemClick,
 }) => {
   if (layout === "compact-scroll") {
+    if (!items || items.length === 0) {
+      return <div className="gb-compact-scroll">No offers</div>;
+    }
+
     return (
-      <div className="flex gap-4 overflow-x-auto py-1">
+      <div className="gb-compact-scroll">
         {items.map((m) => (
-          <div key={m.id} className="w-60 shrink-0">
+          <div key={m.id} className="gb-compact-item">
             <OfferCard model={m} onClick={onItemClick} variant="compact" />
           </div>
         ))}
@@ -26,8 +30,12 @@ const OfferList: React.FC<Props> = ({
   }
 
   if (layout === "list") {
+    if (!items || items.length === 0) {
+      return <div className="gb-list-grid">No offers</div>;
+    }
+
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+      <div className="gb-list-grid">
         {items.map((m) => (
           <OfferCard key={m.id} model={m} onClick={onItemClick} />
         ))}
