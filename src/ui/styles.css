@@ -93,6 +93,12 @@
 .gb-offer-earn{background:linear-gradient(90deg,#09b67a,#047c52);color:#fff;padding:6px 14px;border-radius:20px;font-weight:700;box-shadow:0 2px 6px rgba(4,92,62,0.12)}
 
 .gb-compact-scroll{display:flex;gap:12px;overflow-x:auto;padding:6px 0;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+/* hide horizontal scrollbar for compact/trending lists (cross-browser) */
+.gb-compact-scroll{
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.gb-compact-scroll::-webkit-scrollbar{height:0px}
 .gb-compact-item{flex:0 0 auto;scroll-snap-align:center}
 .gb-list-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 
