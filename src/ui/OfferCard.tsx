@@ -1,5 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import type { OfferModel } from "./types";
+import androidIcon from "./assets/android-green.svg";
+import iosIcon from "./assets/ios.png";
+import clockIcon from "./assets/clock1.svg";
 
 type Props = {
   model: OfferModel;
@@ -51,8 +55,39 @@ export default function OfferCard({
     <div onClick={handle} className="list-item">
       {model.logo && <img src={model.logo} alt={model.name} className="logo" />}
       <div className="meta">
-        <div className="title">{model.name}</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div className="title">{model.name}</div>
+          <span className="pill-timer" style={{ marginLeft: 6 }}>
+            <img
+              src={clockIcon}
+              alt="time"
+              style={{
+                width: 14,
+                height: 14,
+                verticalAlign: "middle",
+                marginRight: 6,
+              }}
+            />
+            {(model as any).duration || "3 Hrs"}
+          </span>
+        </div>
+
         {model.subtitle && <div className="subtitle">{model.subtitle}</div>}
+
+        <div style={{ marginTop: 8 }}>
+          {((model as any).device === "android" ||
+            (model as any).device === "Android") && (
+            <img
+              src={androidIcon}
+              alt="Android"
+              style={{ width: 20, height: 20 }}
+            />
+          )}
+          {((model as any).device === "ios" ||
+            (model as any).device === "iOS") && (
+            <img src={iosIcon} alt="iOS" style={{ width: 20, height: 20 }} />
+          )}
+        </div>
       </div>
       <div className="earn-pill">{model.earn}</div>
     </div>

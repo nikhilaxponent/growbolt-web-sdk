@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useMemo, useState, Suspense } from "react";
 const Modal = React.lazy(() => import("./Modal"));
 const OfferList = React.lazy(() => import("./OfferList"));
 const SDKFilterBar = React.lazy(() => import("./components/SDKFilterBar"));
+const ProgressPage = React.lazy(() => import("./ProgressPage"));
+import sampleOffers from "./data/sampleOffers";
 import type { OfferModel } from "./types";
 
 type Props = {
@@ -19,6 +22,7 @@ export default function SDKModalPage({
   onClose,
   onItemClick,
 }: Props) {
+  const [showStatus, setShowStatus] = useState(false);
   const [category, setCategory] = useState<"all" | "apps" | "games">("all");
   const [query, setQuery] = useState<string>("");
   const [device, setDevice] = useState<string>("");
@@ -28,22 +32,17 @@ export default function SDKModalPage({
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const list = items.filter((m) => {
-      // Category filter: only apply if model exposes `category`
       if (category !== "all") {
         const cat = (m as any).category;
-        if (typeof cat === "string") {
-          if (cat !== category) return false;
-        }
+        if (typeof cat === "string" && cat !== category) return false;
       }
 
-      // Query filter against name and subtitle
       if (q) {
         const name = (m.name || "").toString().toLowerCase();
         const subtitle = ((m as any).subtitle || "").toString().toLowerCase();
         if (!name.includes(q) && !subtitle.includes(q)) return false;
       }
 
-      // Device & payout filters: apply only if fields exist
       if (device) {
         const dev = (m as any).device;
         if (typeof dev === "string" && dev !== device) return false;
@@ -58,7 +57,6 @@ export default function SDKModalPage({
       return true;
     });
 
-    // Sorting
     if (sort === "new") {
       return list.slice().sort((a, b) => {
         const ta = (a as any).createdAt ? Date.parse((a as any).createdAt) : 0;
@@ -84,46 +82,59 @@ export default function SDKModalPage({
     <Suspense fallback={null}>
       <Modal
         open={open}
-        title={title}
+        title={showStatus ? "My Progress" : title}
         onClose={onClose}
         className="sdk-modal-page"
+        onAction={!showStatus ? () => setShowStatus(true) : undefined}
+        onBack={showStatus ? () => setShowStatus(false) : undefined}
       >
-        <div className="sdk-modal-section">
+        {showStatus ? (
           <Suspense fallback={null}>
-            <SDKFilterBar
-              category={category}
-              onCategory={(c) => setCategory(c)}
-              query={query}
-              onQuery={(q) => setQuery(q)}
-              device={device}
-              onDevice={(d) => setDevice(d)}
-              payout={payout}
-              onPayout={(p) => setPayout(p)}
-              sort={sort}
-              onSort={(s) => setSort(s)}
+            <ProgressPage
+              items={sampleOffers as any}
+              onBack={() => setShowStatus(false)}
             />
           </Suspense>
+        ) : (
+          <>
+            <div className="sdk-modal-section">
+              <Suspense fallback={null}>
+                <SDKFilterBar
+                  category={category}
+                  onCategory={(c) => setCategory(c)}
+                  query={query}
+                  onQuery={(q) => setQuery(q)}
+                  device={device}
+                  onDevice={(d) => setDevice(d)}
+                  payout={payout}
+                  onPayout={(p) => setPayout(p)}
+                  sort={sort}
+                  onSort={(s) => setSort(s)}
+                />
+              </Suspense>
 
-          <h3 className="sdk-section-title">Trending Offers</h3>
-          <Suspense fallback={null}>
-            <OfferList
-              items={trending}
-              layout="compact-scroll"
-              onItemClick={onItemClick}
-            />
-          </Suspense>
-        </div>
+              <h3 className="sdk-section-title">Trending Offers</h3>
+              <Suspense fallback={null}>
+                <OfferList
+                  items={trending}
+                  layout="compact-scroll"
+                  onItemClick={onItemClick}
+                />
+              </Suspense>
+            </div>
 
-        <div className="sdk-modal-section">
-          <h3 className="sdk-section-title">All Offers</h3>
-          <Suspense fallback={null}>
-            <OfferList
-              items={filtered}
-              layout="list"
-              onItemClick={onItemClick}
-            />
-          </Suspense>
-        </div>
+            <div className="sdk-modal-section">
+              <h3 className="sdk-section-title">All Offers</h3>
+              <Suspense fallback={null}>
+                <OfferList
+                  items={filtered}
+                  layout="list"
+                  onItemClick={onItemClick}
+                />
+              </Suspense>
+            </div>
+          </>
+        )}
       </Modal>
     </Suspense>
   );
