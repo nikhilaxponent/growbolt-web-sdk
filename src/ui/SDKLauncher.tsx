@@ -1,104 +1,73 @@
-import React, { Suspense } from "react";
-import type { SDKSection } from "./SDKDetailsPage";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { Suspense, useEffect } from "react";
 import logoImg from "./assets/logo-green.svg";
 
 const SDKModalPage = React.lazy(() => import("./SDKModalPage"));
 const SDKDetailsPage = React.lazy(() => import("./SDKDetailsPage"));
 
-const sample = [
-  {
-    id: "1",
-    name: "SuperApp",
-    subtitle: "Install and earn",
-    logo: "/src/ui/assets/shareMarket.webp",
-    earn: "+$3.50",
-    device: "android",
-    duration: "3 Hrs",
-  },
-  {
-    id: "2",
-    name: "MegaGame",
-    subtitle: "Play to win",
-    logo: "/src/ui/assets/shareMarket.webp",
-    earn: "+$5.00",
-    device: "ios",
-    duration: "2 Hrs",
-  },
-  {
-    id: "3",
-    name: "ShopNow",
-    subtitle: "Sign up offer",
-    logo: "/src/ui/assets/shareMarket.webp",
-    earn: "+$2.00",
-    device: "android",
-    duration: "1.5 Hrs",
-  },
-  {
-    id: "4",
-    name: "QuickPay",
-    subtitle: "Sign up and verify",
-    logo: "/src/ui/assets/shareMarket.webp",
-    earn: "+$2.25",
-    device: "ios",
-    duration: "4 Hrs",
-  },
-  {
-    id: "5",
-    name: "FoodDash",
-    subtitle: "Order to earn",
-    logo: "/src/ui/assets/shareMarket.webp",
-    earn: "+$2.00",
-    device: "android",
-    duration: "2 Hrs",
-  },
-  {
-    id: "6",
-    name: "ShopExpress",
-    subtitle: "Install & Signup",
-    logo: "/src/ui/assets/shareMarket.webp",
-    earn: "+$2.00",
-    device: "ios",
-    duration: "1 Hrs",
-  },
-];
-
 export default function SDKLauncher() {
   const [open, setOpen] = React.useState(true);
   const [detailsOpen, setDetailsOpen] = React.useState(false);
-  const [activeSection, setActiveSection] = React.useState<SDKSection | null>(
-    null,
-  );
+  const [loading, setLoading] = React.useState(true);
+  const [offers, setOffers] = React.useState<any[]>([]);
+  const [selectedOffer, setSelectedOffer] = React.useState<any | null>(null);
 
-  function openDetailsFromOffer(m: {
-    id: string;
-    name: string;
-    subtitle?: string;
-    logo?: string;
-    earn?: string;
-  }) {
-    const section: SDKSection = {
-      id: m.id,
-      logo: m.logo,
-      bannerImage: m.logo,
-      title: m.name,
-      subtitle: m.subtitle,
-      reward: m.earn,
-      duration: "3 Hrs",
-      instructions: [
-        "Click on the button below to install the app",
-        "Complete the app installation.",
-        "Add items and make your first order.",
-      ],
-      note: "Make sure to complete the steps to be eligible for the reward.",
-    };
+  useEffect(() => {
+    async function loadOffers() {
+      console.log("GrowBolt on window:", window.GrowBolt);
 
-    setActiveSection(section);
-    setDetailsOpen(true);
+      const GrowBolt = window.GrowBolt;
+      if (!GrowBolt) {
+        console.error("GrowBolt SDK not loaded");
+        return;
+      }
+
+      try {
+        // 1. Initialize SDK
+        const initResponse = await GrowBolt.init({
+          apiKey: "bEUroJ9o9bC4OLF_AXdaPtWR8MWM_RiZgXSA04ckOpo",
+          baseUrl: "http://localhost",
+        });
+
+        console.log("Init Response:", initResponse);
+
+        // 2. Fetch offers from API
+        const apiOffers = await GrowBolt.listOffers();
+
+        console.log("API Offers:", apiOffers);
+
+        // 3. Transform API response to UI format
+        const mappedOffers = apiOffers.map((offer: any) => ({
+          id: offer.id,
+          name: offer.title,
+          subtitle: offer.payout?.title || "Complete offer and earn rewards",
+          logo: offer.logo,
+          earn: `₹${offer.payout?.total || 0}`,
+          duration: "Instant",
+          raw: offer,
+        }));
+
+        console.log("Mapped Offers:", mappedOffers);
+        console.log("Offers Count:", mappedOffers.length);
+        console.log("First Offer:", mappedOffers[0]);
+        // 4. Update UI
+        setOffers(mappedOffers);
+      } catch (err) {
+        console.error("SDK Error:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadOffers();
+  }, []);
+  if (loading) {
+    return <div>Loading offers...</div>;
   }
-
   return (
     <div>
       <button onClick={() => setOpen(true)}>Open SDK Modal</button>
+
       <Suspense fallback={null}>
         <SDKModalPage
           open={open}
@@ -113,19 +82,24 @@ export default function SDKLauncher() {
               <span style={{ fontWeight: 800, fontSize: 16 }}></span>
             </div>
           }
-          items={sample}
+          items={offers}
           onClose={() => setOpen(false)}
-          onItemClick={(m) => openDetailsFromOffer(m)}
+          onItemClick={(m) => {
+            setSelectedOffer(m);
+            setOpen(false);
+            setDetailsOpen(true);
+          }}
         />
 
         <SDKDetailsPage
           open={detailsOpen}
+          offerId={selectedOffer?.id || null}
+          fallbackOffer={selectedOffer}
           onClose={() => setDetailsOpen(false)}
           onBack={() => {
             setDetailsOpen(false);
             setOpen(true);
           }}
-          sections={activeSection ? [activeSection] : []}
         />
       </Suspense>
     </div>

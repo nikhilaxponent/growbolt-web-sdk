@@ -1,18 +1,48 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Pills from "./components/Pills";
 import ProgressItem from "./components/ProgressItem";
-import type { OfferModel } from "./types";
 
 type Props = {
-  items: (OfferModel & { status?: string })[];
   onBack?: () => void;
 };
 
-export default function ProgressPage({ items }: Props) {
-  const [active, setActive] = React.useState<string>("progress");
+export default function ProgressPage({ onBack }: Props) {
+  const [active, setActive] = useState<string>("progress");
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const counts = React.useMemo(() => {
+  const fetchOngoing = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      if (!window.GrowBolt) throw new Error("GrowBolt SDK not available");
+      
+      const config = window.GrowBolt.config;
+      const sub4 = config?.sub4 || config?.userId || window.GrowBolt.sessionId || "postman";
+      
+      // Fetch conversions with "all" to get counts and items for all tabs.
+      // Doing this on load makes switching tabs completely instant!
+      const res = await window.GrowBolt.getOngoing({ sub4, tab: "all" });
+      if (res && Array.isArray(res.items)) {
+        setItems(res.items);
+      } else {
+        setItems([]);
+      }
+    } catch (err: any) {
+      console.error("Failed to fetch ongoing offers", err);
+      setError(err.message || "Failed to load progress");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchOngoing();
+  }, [fetchOngoing]);
+
+  const counts = useMemo(() => {
     const map: Record<string, number> = {
       progress: 0,
       completed: 0,
@@ -20,7 +50,9 @@ export default function ProgressPage({ items }: Props) {
     };
     items.forEach((it) => {
       const s = (it as any).status || "progress";
-      map[s] = (map[s] || 0) + 1;
+      if (typeof map[s] !== "undefined") {
+        map[s] = map[s] + 1;
+      }
     });
     return map;
   }, [items]);
@@ -36,7 +68,11 @@ export default function ProgressPage({ items }: Props) {
       label: `Completed (${counts.completed})`,
       count: counts.completed,
     },
-    { key: "failed", label: `Failed (${counts.failed})`, count: counts.failed },
+    { 
+      key: "failed", 
+      label: `Failed (${counts.failed})`, 
+      count: counts.failed 
+    },
   ];
 
   const filtered = items.filter((it) => (it as any).status === active);
@@ -48,19 +84,45 @@ export default function ProgressPage({ items }: Props) {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginBottom: 50,
+          marginBottom: 20,
         }}
       >
         <Pills options={options} activeKey={active} onChange={setActive} />
       </div>
 
-      <div className="gb-list-grid" style={{ marginTop: 16, gap: 20 }}>
-        {filtered.map((it) => (
-          <div key={(it as any).id || (it as any).offerId}>
-            <ProgressItem item={it as any} />
-          </div>
-        ))}
-      </div>
+      {loading && (
+        <div className="gb-loading-container" style={{ padding: "40px 0", textAlign: "center" }}>
+          <div className="gb-spinner"></div>
+          <p style={{ color: "#666", marginTop: 12 }}>Loading progress...</p>
+        </div>
+      )}
+
+      {error && !loading && (
+        <div className="gb-error-container" style={{ padding: "30px", textAlign: "center", background: "#fee2e2", borderRadius: 8 }}>
+          <p style={{ color: "#b91c1c", marginBottom: 12 }}>{error}</p>
+          <button className="gb-retry-btn" onClick={fetchOngoing}>
+            Retry
+          </button>
+        </div>
+      )}
+
+      {!loading && !error && filtered.length === 0 && (
+        <div className="gb-empty-container" style={{ padding: "60px 0", textAlign: "center", color: "#666" }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>📦</div>
+          <p style={{ fontWeight: 600, fontSize: 16, margin: 0 }}>No offers in this section yet</p>
+          <p style={{ fontSize: 13, color: "#999", marginTop: 4 }}>Completed offers will show up here once processed.</p>
+        </div>
+      )}
+
+      {!loading && !error && filtered.length > 0 && (
+        <div className="gb-list-grid" style={{ marginTop: 16, gap: 20 }}>
+          {filtered.map((it) => (
+            <div key={(it as any).id || (it as any).offer_id}>
+              <ProgressItem item={it as any} />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

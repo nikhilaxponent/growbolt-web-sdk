@@ -9,11 +9,14 @@ export const sdkState: {
   config: SDKConfig | null;
   widgetOpen: boolean;
   publisherConfig: any | null;
+  offers: any[] | null;
+  apiClient?: any;
 } = {
   initialized: false,
   config: null,
   widgetOpen: false,
   publisherConfig: null,
+  offers: null,
 };
 
 export function resetSdkState() {
@@ -21,4 +24,6 @@ export function resetSdkState() {
   sdkState.config = null;
   sdkState.widgetOpen = false;
   sdkState.publisherConfig = null;
+  sdkState.offers = null;
+  sdkState.apiClient = undefined;
 }

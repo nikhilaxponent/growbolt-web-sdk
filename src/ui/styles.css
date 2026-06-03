@@ -312,3 +312,44 @@
   .filter-controls{margin-top:0}
 }
 
+/* Spinner, Loading, Error, Empty states */
+.gb-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(22, 199, 132, 0.1);
+  border-left-color: #16c784;
+  border-radius: 50%;
+  animation: gb-spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes gb-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.gb-loading-container, .gb-error-container, .gb-empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.gb-retry-btn {
+  background: linear-gradient(90deg, #16c784, #0f8a5a);
+  color: #fff;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 100ms ease;
+}
+
+.gb-retry-btn:hover {
+  transform: translateY(-1px);
+}
+
+

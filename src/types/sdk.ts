@@ -36,6 +36,7 @@ export interface InitResponse {
   ok: boolean;
   session?: Session;
   publisherConfig?: PublisherConfig;
+  offers?: any[];
 }
 
 export interface EventPayload {
@@ -51,6 +52,13 @@ export interface GrowBoltSDK {
   off(event: string, listener?: (payload?: EventPayload) => void): void;
   emit(event: string, payload?: EventPayload): void;
   ready(): Promise<InitResponse>;
+  offers: any[] | null;
+  getOffers(): any[];
+  listOffers(options?: { forceRefresh?: boolean }): Promise<any[]>;
+  getOfferDetails(offerId: string): Promise<any>;
+  getOngoing(params: { sub4: string; tab: string }): Promise<any>;
+  readonly sessionId: string | null;
+  readonly config: SDKConfig | null;
 }
 
 export type SDKEventType =

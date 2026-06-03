@@ -2,8 +2,8 @@ export function getEnvironment() {
   return {
     isBrowser: typeof window !== "undefined" && typeof document !== "undefined",
     isWorker:
-      typeof self !== "undefined" && typeof WorkerGlobalScope !== "undefined",
-    isNode: typeof process !== "undefined" && process.versions?.node,
+      typeof self !== "undefined" && typeof (globalThis as any).WorkerGlobalScope !== "undefined",
+    isNode: typeof (globalThis as any).process !== "undefined" && (globalThis as any).process.versions?.node,
   };
 }
 

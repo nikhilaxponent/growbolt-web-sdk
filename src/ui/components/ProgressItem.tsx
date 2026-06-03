@@ -10,7 +10,14 @@ type Props = {
 
 export default function ProgressItem({ item }: Props) {
   const status = (item as any).status || "progress";
-  const amount = item.earn || (item as any).payout || "";
+  let amount = item.earn || "";
+  if (!amount && (item as any).payout) {
+    if (typeof (item as any).payout === "object") {
+      amount = (item as any).payout.display || (item as any).payout.amount || "";
+    } else {
+      amount = String((item as any).payout);
+    }
+  }
   const device = (item as any).device || "";
 
   return (

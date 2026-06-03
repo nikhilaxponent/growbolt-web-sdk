@@ -23,6 +23,10 @@ export async function destroy() {
 
     // emit destroyed event
     emitter.emit("sdk_destroyed");
+    // clear all listeners to avoid leaks across init/destroy cycles
+    // (keep this after emit so listeners for sdk_destroyed still run)
+    // @ts-ignore - removeAllListeners exists on emitter
+    (emitter as any).removeAllListeners();
 
     logger.info("SDK Destroyed");
     return { ok: true };

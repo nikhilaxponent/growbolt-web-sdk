@@ -4,7 +4,6 @@ const Modal = React.lazy(() => import("./Modal"));
 const OfferList = React.lazy(() => import("./OfferList"));
 const SDKFilterBar = React.lazy(() => import("./components/SDKFilterBar"));
 const ProgressPage = React.lazy(() => import("./ProgressPage"));
-import sampleOffers from "./data/sampleOffers";
 import type { OfferModel } from "./types";
 
 type Props = {
@@ -91,7 +90,6 @@ export default function SDKModalPage({
         {showStatus ? (
           <Suspense fallback={null}>
             <ProgressPage
-              items={sampleOffers as any}
               onBack={() => setShowStatus(false)}
             />
           </Suspense>

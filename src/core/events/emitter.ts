@@ -21,6 +21,10 @@ class Emitter {
     if (set.size === 0) this.listeners.delete(event);
   }
 
+  removeAllListeners() {
+    this.listeners.clear();
+  }
+
   emit(event: string, payload?: any) {
     const set = this.listeners.get(event);
     if (!set) return;
