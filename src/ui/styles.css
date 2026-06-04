@@ -75,8 +75,8 @@
 .offer-header-right-stack{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 .offer-reward{color:#059669;font-weight:800;font-size:20px}
 
-.reward-badge{background:linear-gradient(90deg,#ffd26b,#ffb020);color:#7a3b00;padding:6px 10px;border-radius:999px;font-weight:700}
-.reward-badge-sm{padding:4px 8px;font-size:12px}
+.reward-badge{background:linear-gradient(90deg,#ffd26b,#ffb020);color:#fff;padding:6px 10px;border-radius:999px;font-weight:700}
+.reward-badge-sm{padding:4px 8px;font-size:12px; color: #fff}
 
 .instruction-card{background:#fff;padding:16px;border-radius:12px;}
 .instruction-card-inner{display:flex;gap:16px;align-items:flex-start}
@@ -140,7 +140,8 @@
 .list-item .meta{flex:1}
 .list-item .title{font-size:18px;font-weight:600;color:#0f172a}
 .list-item .subtitle{font-size:13px;color:#6b7280}
-.list-item .earn-pill{ background:linear-gradient(90deg,#16c784,#0f8a5a);color:#fff;padding:10px 18px;border-radius:999px;font-weight:800;box-shadow:0 8px 18px rgba(16,185,129,0.12)}
+.list-item .earn-pill{ background:linear-gradient(90deg,#16c784,#0f8a5a);color:#fff;padding:10px 18px;border-radius:999px;font-weight:800;box-shadow:0 8px 18px rgba(16,185,129,0.12); text-align: center;}
+.earn-pill{ background:linear-gradient(90deg,#16c784,#0f8a5a);color:#fff;padding:8px 15px;border-radius:999px;font-weight:800;box-shadow:0 8px 18px rgba(16,185,129,0.12); text-align: center;}
 
 /* Status badge variants used across the SDK */
 .status-badge{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:700;font-size:13px}

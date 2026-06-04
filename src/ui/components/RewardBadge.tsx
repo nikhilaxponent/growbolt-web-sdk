@@ -7,7 +7,10 @@ type Props = {
 
 export default function RewardBadge({ children, small }: Props) {
   return (
-    <div className={"reward-badge " + (small ? "reward-badge-sm" : "")}>
+    <div
+      style={{ color: "#fff" }}
+      className={"reward-badge " + (small ? "reward-badge-sm" : "")}
+    >
       {children}
     </div>
   );

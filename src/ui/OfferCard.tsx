@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import type { OfferModel } from "./types";
+import { resolveTrackedOfferUrl } from "../utils/offerClick";
+import ClaimLinkModal from "./components/ClaimLinkModal";
 import androidIcon from "./assets/android-green.svg";
 import iosIcon from "./assets/ios.png";
 import clockIcon from "./assets/clock1.svg";
@@ -33,8 +35,26 @@ export default function OfferCard({
   onClick,
 }: Props) {
   const [imgError, setImgError] = useState(false);
+  const [claimUrl, setClaimUrl] = useState("");
+  const [claimModalOpen, setClaimModalOpen] = useState(false);
 
   const handle = () => onClick?.(model);
+
+  const handleEarnClick = async (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    event.stopPropagation();
+
+    const trackedUrl = await resolveTrackedOfferUrl({
+      offerId: model.id,
+      title: model.name,
+    });
+
+    if (trackedUrl) {
+      setClaimUrl(trackedUrl);
+      setClaimModalOpen(true);
+    }
+  };
 
   if (variant === "compact") {
     return (
@@ -61,7 +81,15 @@ export default function OfferCard({
 
         <div className="text-12 text-gray-500 mb-2">{model.subtitle}</div>
 
-        <Button>{model.earn}</Button>
+        <Button type="button" className="pill-earn" onClick={handleEarnClick}>
+          {model.earn}
+        </Button>
+
+        <ClaimLinkModal
+          open={claimModalOpen}
+          url={claimUrl}
+          onClose={() => setClaimModalOpen(false)}
+        />
       </div>
     );
   }
@@ -99,7 +127,7 @@ export default function OfferCard({
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div className="title">{model.name}</div>
 
-          <span className="pill-timer" style={{ marginLeft: 6 }}>
+          <span className="pill-timer" style={{ marginLeft: 6, color: "#fff" }}>
             <img
               src={clockIcon}
               alt="time"
@@ -133,7 +161,19 @@ export default function OfferCard({
         </div>
       </div>
 
-      <div className="earn-pill">{model.earn}</div>
+      <button
+        type="button"
+        className="pill-earn earn-pill"
+        onClick={handleEarnClick}
+      >
+        {model.earn}
+      </button>
+
+      <ClaimLinkModal
+        open={claimModalOpen}
+        url={claimUrl}
+        onClose={() => setClaimModalOpen(false)}
+      />
     </div>
   );
 }

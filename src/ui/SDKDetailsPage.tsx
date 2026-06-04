@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { Suspense, useState, useEffect } from "react";
 import { toPlainText } from "../utils/sanitizeContent";
+import { resolveTrackedOfferUrl } from "../utils/offerClick";
 import PaymentMilestoneCard from "./components/PaymentMilestoneCard";
 import ClaimLinkModal from "./components/ClaimLinkModal";
 import RichContent from "./components/RichContent";
@@ -89,9 +90,9 @@ export default function SDKDetailsPage({
 
   const title =
     toPlainText(details?.title) || fallbackOffer?.name || "Offer Details";
-  const subtitle =
-    details?.description || fallbackOffer?.subtitle || "";
-  const logo = details?.logo || details?.logo_source || fallbackOffer?.logo || "";
+  const subtitle = details?.description || fallbackOffer?.subtitle || "";
+  const logo =
+    details?.logo || details?.logo_source || fallbackOffer?.logo || "";
   const bannerImage = logo;
   const reward =
     totalReward > 0
@@ -105,56 +106,30 @@ export default function SDKDetailsPage({
       : "Instant";
   const note =
     details?.note ||
-    "Complete all required steps and keep the app installed until tracking is complete.";
+    "You will Not be rewarded if you have installed this app before.";
 
-  function buildAttributedUrl(rawUrl: string): string {
-    if (!rawUrl) return "";
-    try {
-      const u = new URL(rawUrl);
-      const config = window.GrowBolt?.config;
-      const sub4 =
-        config?.sub4 || config?.userId || window.GrowBolt?.sessionId || "";
-      if (sub4) {
-        u.searchParams.set("sub4", sub4);
-        u.searchParams.set("subid4", sub4);
-      }
-      return u.toString();
-    } catch {
-      return rawUrl;
-    }
-  }
+  const disclaimer =
+    details?.disclaimer ||
+    "Fake Installs will not be entertained and will lead to deactivation of your account.";
 
   const handleCTAClick = async () => {
     if (!offerId) return;
 
     try {
-      if (!window.GrowBolt?.redeemOffer) {
-        console.error("redeemOffer method not found on GrowBolt");
-        return;
-      }
-
-      const redeemResponse = await window.GrowBolt.redeemOffer(String(offerId));
-
-      let targetUrl =
-        redeemResponse?.url ||
-        redeemResponse?.click_url ||
-        details?.url ||
-        details?.preview_url ||
-        fallbackOffer?.url ||
-        fallbackOffer?.preview_url ||
-        "";
+      const targetUrl = await resolveTrackedOfferUrl({
+        offerId,
+        title,
+        fallbackUrl: details?.url,
+        fallbackPreviewUrl:
+          details?.preview_url ||
+          fallbackOffer?.url ||
+          fallbackOffer?.preview_url,
+      });
 
       if (!targetUrl) return;
 
-      targetUrl = buildAttributedUrl(targetUrl);
       setClaimUrl(targetUrl);
       setClaimModalOpen(true);
-
-      window.GrowBolt?.emit("offer_click", {
-        offerId,
-        title,
-        url: targetUrl,
-      });
     } catch (err) {
       console.error("Redeem API Failed", err);
     }
@@ -237,15 +212,6 @@ export default function SDKDetailsPage({
                   </Suspense>
                 </div>
 
-                {subtitle && (
-                  <div
-                    className="sdk-details-description"
-                    style={{ marginTop: 16 }}
-                  >
-                    <RichContent value={subtitle} className="offer-description" />
-                  </div>
-                )}
-
                 <Suspense fallback={null}>
                   {Array.isArray(details?.payments) &&
                     details.payments.length > 0 && (
@@ -273,18 +239,43 @@ export default function SDKDetailsPage({
                 {note && (
                   <div
                     className="important-note rounded-xl"
-                    style={{ marginTop: 20, paddingTop: 12 }}
+                    style={{
+                      marginTop: 20,
+                      paddingTop: 12,
+                      paddingBottom: 18,
+                    }}
                   >
                     <div className="important-note-inner">
                       <div className="important-icon">⚠️</div>
+
                       <div>
                         <div className="important-title">Important Note</div>
-                        <RichContent
-                          value={note}
-                          className="important-body"
-                        />
+
+                        <RichContent value={note} className="important-body" />
                       </div>
                     </div>
+
+                    {disclaimer && (
+                      <div
+                        className="important-note-inner"
+                        style={{
+                          marginTop: 14,
+                          paddingTop: 10,
+                          borderTop: "1px solid rgba(255,255,255,0.1)",
+                        }}
+                      >
+                        <div className="important-icon">⚠️</div>
+
+                        <div>
+                          <div className="important-title">Disclaimer</div>
+
+                          <RichContent
+                            value={disclaimer}
+                            className="important-body"
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </section>

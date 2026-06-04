@@ -24,7 +24,11 @@ export default function OfferHeaderCard({
         <div>
           <div className="offer-header-title">{title}</div>
           {subtitle ? (
-            <RichContent value={subtitle} className="offer-header-sub" as="div" />
+            <RichContent
+              value={subtitle}
+              className="offer-header-sub"
+              as="div"
+            />
           ) : null}
         </div>
       </div>

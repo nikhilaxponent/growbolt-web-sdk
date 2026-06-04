@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import ReactDOM from "react-dom";
 import QRCode from "qrcode";
 
 type Props = {
@@ -55,7 +56,7 @@ export default function ClaimLinkModal({
 
   if (!open) return null;
 
-  return (
+  const modalContent = (
     <div
       className="gb-claim-modal-backdrop"
       role="dialog"
@@ -63,10 +64,7 @@ export default function ClaimLinkModal({
       aria-labelledby="gb-claim-modal-title"
       onClick={onClose}
     >
-      <div
-        className="gb-claim-modal"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="gb-claim-modal" onClick={(e) => e.stopPropagation()}>
         <div className="gb-claim-modal-header">
           <h2 id="gb-claim-modal-title" className="gb-claim-modal-title">
             {title}
@@ -87,7 +85,11 @@ export default function ClaimLinkModal({
 
         <div className="gb-claim-qr-wrap">
           {qrDataUrl ? (
-            <img src={qrDataUrl} alt="QR code for offer link" className="gb-claim-qr" />
+            <img
+              src={qrDataUrl}
+              alt="QR code for offer link"
+              className="gb-claim-qr"
+            />
           ) : (
             <div className="gb-claim-qr-placeholder">
               {qrError || "Generating QR code…"}
@@ -111,4 +113,6 @@ export default function ClaimLinkModal({
       </div>
     </div>
   );
+
+  return ReactDOM.createPortal(modalContent, document.body);
 }
