@@ -6,6 +6,7 @@ import widget from "../modules/widget/widget";
 import { sdkState } from "./state/sdkState";
 import { sessionState } from "./state/sessionState";
 import { logger } from "../services/logger/logger";
+import { assertInitialized, getSdkAuthHeaders } from "./api/auth";
 import type {
   InitResponse,
   SDKConfig,
@@ -42,7 +43,9 @@ export class SDK implements GrowBoltSDK {
 
   openOfferwall(opts?: { url?: string }): void {
     if (!sdkState.initialized) {
-      logger.warn("openOfferwall: SDK not initialized");
+      logger.error(
+        "openOfferwall: call GrowBolt.init({ apiKey }) before opening the offerwall",
+      );
       return;
     }
     widget.openOfferwall(opts);
@@ -95,58 +98,95 @@ export class SDK implements GrowBoltSDK {
     return sdkState.offers || [];
   }
 
-  async listOffers(options?: { forceRefresh?: boolean }): Promise<any[]> {
-    if (!sdkState.initialized) throw new Error("SDK not initialized");
-    if (sdkState.offers && !options?.forceRefresh) {
+  async listOffers(options?: {
+    forceRefresh?: boolean;
+    search?: string;
+    category?: string;
+    tag?: string;
+    os?: string;
+  }): Promise<any[]> {
+    assertInitialized();
+    const hasFilters =
+      options?.search || options?.category || options?.tag || options?.os;
+
+    if (sdkState.offers && !options?.forceRefresh && !hasFilters) {
       return sdkState.offers;
     }
     const api: any = (sdkState as any).apiClient;
     if (!api) throw new Error("API client not available");
-    const scheme =
-      (sdkState.config && (sdkState.config as any).apiKeyScheme) || "SdkToken";
-    const apiKey = sdkState.config?.apiKey;
-    const path = "/api/v1/sdk/offers/";
+    const params = new URLSearchParams();
+
+    if (options?.search) {
+      params.append("search", options.search);
+    }
+
+    if (options?.category) {
+      params.append("category", options.category);
+    }
+
+    if (options?.tag) {
+      params.append("tag", options.tag);
+    }
+
+    if (options?.os) {
+      params.append("os", options.os);
+    }
+
+    const query = params.toString();
+
+    const path = query ? `/api/v1/sdk/offers/?${query}` : "/api/v1/sdk/offers/";
     const resp = await api.get(path, {
-      headers: { Authorization: `${scheme} ${String(apiKey)}` },
+      headers: getSdkAuthHeaders(),
     });
     let offersList: any[] = [];
     if (resp && Array.isArray(resp.offers)) {
       offersList = resp.offers;
+    } else if (resp && Array.isArray(resp.results)) {
+      offersList = resp.results;
     } else if (Array.isArray(resp)) {
       offersList = resp;
     }
-    sdkState.offers = offersList;
+    // Keep the unfiltered catalog in sdkState; filtered fetches are ephemeral.
+    if (!hasFilters) {
+      sdkState.offers = offersList;
+    }
     return offersList;
   }
 
   // Fetch ongoing items for a given sub4 and tab (completed|pending|failed)
   async getOngoing(params: { sub4: string; tab: string }) {
-    if (!sdkState.initialized) throw new Error("SDK not initialized");
+    assertInitialized();
     const api: any = (sdkState as any).apiClient;
     if (!api) throw new Error("API client not available");
     const { sub4, tab } = params;
     const q = `?sub4=${encodeURIComponent(sub4)}&tab=${encodeURIComponent(tab)}`;
     const path = `/api/v1/sdk/ongoing/${q}`;
-    const scheme =
-      (sdkState.config && (sdkState.config as any).apiKeyScheme) || "SdkToken";
-    const apiKey = sdkState.config?.apiKey;
     return api.get(path, {
-      headers: { Authorization: `${scheme} ${String(apiKey)}` },
+      headers: getSdkAuthHeaders(),
     });
   }
 
   // Fetch offer details by offerId
   async getOfferDetails(offerId: string) {
-    if (!sdkState.initialized) throw new Error("SDK not initialized");
+    assertInitialized();
     const api: any = (sdkState as any).apiClient;
     if (!api) throw new Error("API client not available");
-    const scheme =
-      (sdkState.config && (sdkState.config as any).apiKeyScheme) || "SdkToken";
-    const apiKey = sdkState.config?.apiKey;
     const path = `/api/v1/sdk/offers/${encodeURIComponent(offerId)}/`;
 
     return api.get(path, {
-      headers: { Authorization: `${scheme} ${String(apiKey)}` },
+      headers: getSdkAuthHeaders(),
+    });
+  }
+
+  async redeemOffer(offerId: string) {
+    assertInitialized();
+    const api: any = (sdkState as any).apiClient;
+    if (!api) throw new Error("API client not available");
+
+    const path = `/api/v1/sdk/offers/${encodeURIComponent(offerId)}/redeem/`;
+
+    return api.post(path, undefined, {
+      headers: getSdkAuthHeaders(),
     });
   }
 

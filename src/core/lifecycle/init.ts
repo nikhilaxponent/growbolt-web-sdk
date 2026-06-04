@@ -6,6 +6,8 @@ import sessionService from "../../services/session/session";
 import { logger } from "../../services/logger/logger";
 import { validateConfig } from "../../utils/validate";
 import { ENDPOINTS } from "../../services/api/endpoints";
+import { resolveApiBaseUrl } from "../../config/runtime";
+import { getSdkAuthHeaders } from "../api/auth";
 import type { InitResponse, SDKConfig } from "../../types/sdk";
 
 export async function init(config?: Partial<SDKConfig>): Promise<InitResponse> {
@@ -21,39 +23,31 @@ export async function init(config?: Partial<SDKConfig>): Promise<InitResponse> {
 
   try {
     logger.info("SDK initializing");
-    sdkState.config = config as any;
+
+    const resolvedBase = resolveApiBaseUrl(config.baseUrl);
+    sdkState.config = {
+      ...config,
+      apiKey: config.apiKey,
+      baseUrl: resolvedBase,
+    } as SDKConfig;
 
     // restore or create session
     const restored = sessionService.restoreSession();
     const session = restored || sessionService.createSession();
     logger.debug("Session:", session.sessionId);
 
-    // determine baseUrl: prefer explicit config, then bundler env (Vite), then global fallback
-    const ENV_BASE: string | undefined =
-      typeof import.meta !== "undefined" && (import.meta as any).env
-        ? (import.meta as any).env.VITE_API_BASE_URL
-        : undefined;
-    const GLOBAL_BASE: string | undefined = (globalThis as any)
-      .GROWBOLT_SDK_BASE_URL;
-    const resolvedBase =
-      (config && (config as any).baseUrl) || ENV_BASE || GLOBAL_BASE;
-
-    // create api client
     const api = new ApiClient({
       baseUrl: resolvedBase,
     });
     // expose api client on sdkState for later SDK methods
     (sdkState as any).apiClient = api;
 
-    // Determine API key scheme to use in Authorization header (default to SdkToken)
-    const apiKeyScheme = (config && (config as any).apiKeyScheme) || "SdkToken";
-
     // Prefer calling offers endpoint which both verifies the apiKey and returns offers+publisherConfig
     let resp: any = null;
     try {
-      logger.debug("Calling backend offers", ENDPOINTS.SDK_OFFERS); // use Authorization: <scheme> <key> to match backend expectations
+      logger.debug("Calling backend offers", ENDPOINTS.SDK_OFFERS);
       resp = await api.get(ENDPOINTS.SDK_OFFERS, {
-        headers: { Authorization: `${apiKeyScheme} ${String(config.apiKey)}` },
+        headers: getSdkAuthHeaders(),
       } as any);
       logger.debug("Offers endpoint response successfully received");
     } catch (err) {
@@ -96,9 +90,7 @@ export async function init(config?: Partial<SDKConfig>): Promise<InitResponse> {
           logger.debug(`Fetching offers from ${offersPath}`);
           // send api key in header (do not expose in query string)
           const offersResp: any = await api.get(offersPath, {
-            headers: {
-              Authorization: `${apiKeyScheme} ${String(config.apiKey)}`,
-            },
+            headers: getSdkAuthHeaders(),
           } as any);
           if (offersResp && Array.isArray(offersResp.offers)) {
             sdkState.offers = offersResp.offers;

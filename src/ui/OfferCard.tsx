@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
+import React, { useState } from "react";
 import type { OfferModel } from "./types";
 import androidIcon from "./assets/android-green.svg";
 import iosIcon from "./assets/ios.png";
@@ -32,20 +32,35 @@ export default function OfferCard({
   variant = "regular",
   onClick,
 }: Props) {
+  const [imgError, setImgError] = useState(false);
+
   const handle = () => onClick?.(model);
 
   if (variant === "compact") {
     return (
       <div onClick={handle} className="gb-offer-card compact shadow-card">
-        <img
-          src={model.logo}
-          alt={model.name}
-          className="w-35 h-35 object-cover rounded-md"
-        />
+        {model.logo && !imgError ? (
+          <img
+            src={model.logo}
+            alt={model.name}
+            className="w-35 h-35 object-cover rounded-md"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <div
+            className="w-35 h-35 rounded-md flex items-center justify-center text-white font-bold text-xl"
+            style={{ backgroundColor: "#000" }}
+          >
+            {model.name?.charAt(0)?.toUpperCase() || "G"}
+          </div>
+        )}
+
         <div className="text-sm font-semibold text-gray-800 pt-2">
           {model.name}
         </div>
+
         <div className="text-12 text-gray-500 mb-2">{model.subtitle}</div>
+
         <Button>{model.earn}</Button>
       </div>
     );
@@ -53,10 +68,37 @@ export default function OfferCard({
 
   return (
     <div onClick={handle} className="list-item">
-      {model.logo && <img src={model.logo} alt={model.name} className="logo" />}
+      {model.logo && !imgError ? (
+        <img
+          src={model.logo}
+          alt={model.name}
+          className="logo"
+          onError={() => setImgError(true)}
+        />
+      ) : (
+        <div
+          className="logo"
+          style={{
+            backgroundColor: "#000",
+            color: "#fff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontWeight: 700,
+            fontSize: "20px",
+            borderRadius: "8px",
+            minWidth: "60px",
+            minHeight: "60px",
+          }}
+        >
+          {model.name?.charAt(0)?.toUpperCase() || "G"}
+        </div>
+      )}
+
       <div className="meta">
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div className="title">{model.name}</div>
+
           <span className="pill-timer" style={{ marginLeft: 6 }}>
             <img
               src={clockIcon}
@@ -83,12 +125,14 @@ export default function OfferCard({
               style={{ width: 20, height: 20 }}
             />
           )}
+
           {((model as any).device === "ios" ||
             (model as any).device === "iOS") && (
             <img src={iosIcon} alt="iOS" style={{ width: 20, height: 20 }} />
           )}
         </div>
       </div>
+
       <div className="earn-pill">{model.earn}</div>
     </div>
   );

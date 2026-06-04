@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { Suspense, useState, useEffect } from "react";
+import { toPlainText } from "../utils/sanitizeContent";
+import PaymentMilestoneCard from "./components/PaymentMilestoneCard";
+import ClaimLinkModal from "./components/ClaimLinkModal";
+import RichContent from "./components/RichContent";
 const Modal = React.lazy(() => import("./Modal"));
 const BannerSection = React.lazy(() => import("./components/BannerSection"));
 const OfferHeaderCard = React.lazy(
   () => import("./components/OfferHeaderCard"),
 );
-const InstructionCard = React.lazy(
-  () => import("./components/InstructionCard"),
-);
-const RewardBadge = React.lazy(() => import("./components/RewardBadge"));
 const StickyCTA = React.lazy(() => import("./components/StickyCTA"));
 
 type Props = {
@@ -37,6 +37,8 @@ export default function SDKDetailsPage({
   const [details, setDetails] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [claimModalOpen, setClaimModalOpen] = useState(false);
+  const [claimUrl, setClaimUrl] = useState("");
 
   useEffect(() => {
     if (!open || !offerId) {
@@ -53,6 +55,7 @@ export default function SDKDetailsPage({
       try {
         if (!window.GrowBolt) throw new Error("GrowBolt SDK not available");
         const res = await window.GrowBolt.getOfferDetails(offerId!);
+
         if (active) {
           setDetails(res);
           setLoading(false);
@@ -73,68 +76,97 @@ export default function SDKDetailsPage({
     };
   }, [open, offerId]);
 
-  // Fallback mappings if API details aren't loaded or fail
-  const title = details?.title || fallbackOffer?.name || "Offer Details";
-  const logo = details?.logo || fallbackOffer?.logo;
-  const bannerImage = details?.logo || fallbackOffer?.logo;
-  const subtitle = details?.description || fallbackOffer?.subtitle || "";
-  const reward = details?.payout?.total 
-    ? `+$${details.payout.total}` 
-    : (fallbackOffer?.earn || "");
-  const duration = details?.hold_period 
-    ? `${details.hold_period} ${details.hold_type === "hours" ? "Hrs" : "Days"}` 
-    : "3 Hrs";
-  const note = details?.kpi || "Make sure to complete the steps to be eligible for the reward.";
+  const formatAmount = (value: string | number | undefined) => {
+    const num = Number(value || 0);
+    return Number.isInteger(num) ? num.toString() : num.toFixed(1);
+  };
 
-  // Determine steps
-  let instructions: string[] = [
-    "Click on the button below to install the app.",
-    "Complete the registration or task steps required.",
-    "Ensure you remain in the app to qualify for the reward."
-  ];
+  const totalReward =
+    details?.payments?.reduce(
+      (sum: number, payment: any) => sum + Number(payment.total || 0),
+      0,
+    ) || 0;
 
-  if (details?.payments && details.payments.length > 0) {
-    instructions = details.payments.map((p: any) => p.title || p.goal || "Complete step");
-  } else if (details?.description) {
-    const lines = details.description
-      .split(/\n+/)
-      .map((l: string) => l.trim())
-      .filter(Boolean);
-    if (lines.length > 0) {
-      instructions = lines;
+  const title =
+    toPlainText(details?.title) || fallbackOffer?.name || "Offer Details";
+  const subtitle =
+    details?.description || fallbackOffer?.subtitle || "";
+  const logo = details?.logo || details?.logo_source || fallbackOffer?.logo || "";
+  const bannerImage = logo;
+  const reward =
+    totalReward > 0
+      ? `₹${formatAmount(totalReward)}`
+      : fallbackOffer?.earn || "";
+  const duration =
+    details?.expiry_days > 0
+      ? `${details.expiry_days} ${
+          details?.expiry_type === "hours" ? "Hours" : "Days"
+        }`
+      : "Instant";
+  const note =
+    details?.note ||
+    "Complete all required steps and keep the app installed until tracking is complete.";
+
+  function buildAttributedUrl(rawUrl: string): string {
+    if (!rawUrl) return "";
+    try {
+      const u = new URL(rawUrl);
+      const config = window.GrowBolt?.config;
+      const sub4 =
+        config?.sub4 || config?.userId || window.GrowBolt?.sessionId || "";
+      if (sub4) {
+        u.searchParams.set("sub4", sub4);
+        u.searchParams.set("subid4", sub4);
+      }
+      return u.toString();
+    } catch {
+      return rawUrl;
     }
   }
 
-  const handleCTAClick = () => {
-    let targetUrl = details?.url || details?.preview_url || fallbackOffer?.url || fallbackOffer?.preview_url || "";
-    if (targetUrl) {
-      try {
-        const u = new URL(targetUrl);
-        const config = window.GrowBolt?.config;
-        const sub4 = config?.sub4 || config?.userId || window.GrowBolt?.sessionId || "";
-        if (sub4) {
-          u.searchParams.set("sub4", sub4);
-          u.searchParams.set("subid4", sub4);
-        }
-        targetUrl = u.toString();
-      } catch (e) {
-        // use original
+  const handleCTAClick = async () => {
+    if (!offerId) return;
+
+    try {
+      if (!window.GrowBolt?.redeemOffer) {
+        console.error("redeemOffer method not found on GrowBolt");
+        return;
       }
-      window.open(targetUrl, "_blank", "noopener,noreferrer");
+
+      const redeemResponse = await window.GrowBolt.redeemOffer(String(offerId));
+
+      let targetUrl =
+        redeemResponse?.url ||
+        redeemResponse?.click_url ||
+        details?.url ||
+        details?.preview_url ||
+        fallbackOffer?.url ||
+        fallbackOffer?.preview_url ||
+        "";
+
+      if (!targetUrl) return;
+
+      targetUrl = buildAttributedUrl(targetUrl);
+      setClaimUrl(targetUrl);
+      setClaimModalOpen(true);
 
       window.GrowBolt?.emit("offer_click", {
         offerId,
         title,
-        url: targetUrl
+        url: targetUrl,
       });
+    } catch (err) {
+      console.error("Redeem API Failed", err);
     }
   };
 
   return (
     <Suspense fallback={null}>
       <Modal open={open} onClose={onClose} className="sdk-details-modal">
-        <div className="sdk-details-root bg-gray-50" style={{ minHeight: "100%", paddingBottom: "100px" }}>
-          {/* Back button to return to SDK list */}
+        <div
+          className="sdk-details-root bg-gray-50"
+          style={{ minHeight: "100%", paddingBottom: "100px" }}
+        >
           <button
             className="details-back-btn"
             aria-label="Back to offers"
@@ -142,7 +174,7 @@ export default function SDKDetailsPage({
           >
             {"<"}
           </button>
-          
+
           <Suspense fallback={null}>
             <BannerSection image={bannerImage}>
               <div className="banner-fallback">GrowBolt</div>
@@ -151,14 +183,32 @@ export default function SDKDetailsPage({
 
           <div className="sdk-details-container">
             {loading ? (
-              <div className="gb-loading-container" style={{ background: "#fff", borderRadius: "16px", boxShadow: "0 12px 30px rgba(2,6,23,0.08)" }}>
+              <div
+                className="gb-loading-container"
+                style={{
+                  background: "#fff",
+                  borderRadius: "16px",
+                  boxShadow: "0 12px 30px rgba(2,6,23,0.08)",
+                }}
+              >
                 <div className="gb-spinner"></div>
-                <p style={{ marginTop: 12, color: "#666" }}>Loading offer details...</p>
+                <p style={{ marginTop: 12, color: "#666" }}>
+                  Loading offer details...
+                </p>
               </div>
             ) : error ? (
-              <div className="gb-error-container" style={{ background: "#fff", borderRadius: "16px", boxShadow: "0 12px 30px rgba(2,6,23,0.08)", padding: "40px 20px" }}>
-                <p style={{ color: "#ef4444", marginBottom: 16 }}>{error}. Showing cached summary instead.</p>
-                {/* Fallback layout is rendered since details failed to load */}
+              <div
+                className="gb-error-container"
+                style={{
+                  background: "#fff",
+                  borderRadius: "16px",
+                  boxShadow: "0 12px 30px rgba(2,6,23,0.08)",
+                  padding: "40px 20px",
+                }}
+              >
+                <p style={{ color: "#ef4444", marginBottom: 16 }}>
+                  {error}. Showing cached summary instead.
+                </p>
                 <section className="sdk-section mb-6" style={{ width: "100%" }}>
                   <div className="sdk-overlap-wrapper">
                     <Suspense fallback={null}>
@@ -171,20 +221,6 @@ export default function SDKDetailsPage({
                       />
                     </Suspense>
                   </div>
-
-                  <Suspense fallback={null}>
-                    <InstructionCard
-                      title="Details"
-                      items={instructions}
-                      rightBadge={
-                        duration ? (
-                          <Suspense fallback={null}>
-                            <RewardBadge small>{duration}</RewardBadge>
-                          </Suspense>
-                        ) : null
-                      }
-                    />
-                  </Suspense>
                 </section>
               </div>
             ) : (
@@ -201,18 +237,37 @@ export default function SDKDetailsPage({
                   </Suspense>
                 </div>
 
+                {subtitle && (
+                  <div
+                    className="sdk-details-description"
+                    style={{ marginTop: 16 }}
+                  >
+                    <RichContent value={subtitle} className="offer-description" />
+                  </div>
+                )}
+
                 <Suspense fallback={null}>
-                  <InstructionCard
-                    title={details?.payments ? "Steps to Earn" : "Details"}
-                    items={instructions}
-                    rightBadge={
-                      duration ? (
-                        <Suspense fallback={null}>
-                          <RewardBadge small>{duration}</RewardBadge>
-                        </Suspense>
-                      ) : null
-                    }
-                  />
+                  {Array.isArray(details?.payments) &&
+                    details.payments.length > 0 && (
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "12px",
+                          marginTop: "16px",
+                        }}
+                      >
+                        {details.payments.map((payment: any, index: number) => (
+                          <PaymentMilestoneCard
+                            key={payment.id || index}
+                            step={index + 1}
+                            title={payment.title || payment.goal}
+                            description={payment.description}
+                            reward={`${formatAmount(payment.total)}`}
+                          />
+                        ))}
+                      </div>
+                    )}
                 </Suspense>
 
                 {note && (
@@ -224,7 +279,10 @@ export default function SDKDetailsPage({
                       <div className="important-icon">⚠️</div>
                       <div>
                         <div className="important-title">Important Note</div>
-                        <div className="important-body">{note}</div>
+                        <RichContent
+                          value={note}
+                          className="important-body"
+                        />
                       </div>
                     </div>
                   </div>
@@ -233,7 +291,7 @@ export default function SDKDetailsPage({
             )}
           </div>
 
-          {(!loading) && (
+          {!loading && (
             <Suspense fallback={null}>
               <StickyCTA onClick={handleCTAClick}>
                 <span className="cta-text">Claim {reward}</span>
@@ -242,6 +300,12 @@ export default function SDKDetailsPage({
           )}
         </div>
       </Modal>
+
+      <ClaimLinkModal
+        open={claimModalOpen}
+        url={claimUrl}
+        onClose={() => setClaimModalOpen(false)}
+      />
     </Suspense>
   );
 }

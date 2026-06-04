@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface SDKConfig {
+  /** Required. Provided once in GrowBolt.init(). */
   apiKey: string;
+  /**
+   * Optional override for API origin. Normally omitted — the SDK uses its
+   * built-in default (production) or build-time `VITE_API_BASE_URL`.
+   */
   baseUrl?: string;
   debug?: boolean;
   timeout?: number;
@@ -54,7 +59,14 @@ export interface GrowBoltSDK {
   ready(): Promise<InitResponse>;
   offers: any[] | null;
   getOffers(): any[];
-  listOffers(options?: { forceRefresh?: boolean }): Promise<any[]>;
+  redeemOffer(offerId: string): Promise<any>;
+  listOffers(options?: {
+    forceRefresh?: boolean;
+    search?: string;
+    category?: string;
+    tag?: string;
+    os?: string;
+  }): Promise<any[]>;
   getOfferDetails(offerId: string): Promise<any>;
   getOngoing(params: { sub4: string; tab: string }): Promise<any>;
   readonly sessionId: string | null;

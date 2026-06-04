@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { Suspense, useEffect } from "react";
 import logoImg from "./assets/logo-green.svg";
+import { mapApiOfferToModel } from "./mapOffer";
 
 const SDKModalPage = React.lazy(() => import("./SDKModalPage"));
 const SDKDetailsPage = React.lazy(() => import("./SDKDetailsPage"));
@@ -11,49 +12,32 @@ export default function SDKLauncher() {
   const [loading, setLoading] = React.useState(true);
   const [offers, setOffers] = React.useState<any[]>([]);
   const [selectedOffer, setSelectedOffer] = React.useState<any | null>(null);
+  const [loadError, setLoadError] = React.useState<string | null>(null);
 
   useEffect(() => {
     async function loadOffers() {
-      console.log("GrowBolt on window:", window.GrowBolt);
-
       const GrowBolt = window.GrowBolt;
       if (!GrowBolt) {
-        console.error("GrowBolt SDK not loaded");
+        setLoadError("GrowBolt SDK script is not loaded.");
+        setLoading(false);
+        return;
+      }
+
+      if (!GrowBolt.config?.apiKey) {
+        setLoadError(
+          "SDK not initialized. Call GrowBolt.init({ apiKey: 'YOUR_KEY' }) before openOfferwall().",
+        );
+        setLoading(false);
         return;
       }
 
       try {
-        // 1. Initialize SDK
-        const initResponse = await GrowBolt.init({
-          apiKey: "bEUroJ9o9bC4OLF_AXdaPtWR8MWM_RiZgXSA04ckOpo",
-          baseUrl: "http://localhost",
-        });
-
-        console.log("Init Response:", initResponse);
-
-        // 2. Fetch offers from API
         const apiOffers = await GrowBolt.listOffers();
-
-        console.log("API Offers:", apiOffers);
-
-        // 3. Transform API response to UI format
-        const mappedOffers = apiOffers.map((offer: any) => ({
-          id: offer.id,
-          name: offer.title,
-          subtitle: offer.payout?.title || "Complete offer and earn rewards",
-          logo: offer.logo,
-          earn: `₹${offer.payout?.total || 0}`,
-          duration: "Instant",
-          raw: offer,
-        }));
-
-        console.log("Mapped Offers:", mappedOffers);
-        console.log("Offers Count:", mappedOffers.length);
-        console.log("First Offer:", mappedOffers[0]);
-        // 4. Update UI
-        setOffers(mappedOffers);
+        setOffers(apiOffers.map((offer: any) => mapApiOfferToModel(offer)));
+        setLoadError(null);
       } catch (err) {
         console.error("SDK Error:", err);
+        setLoadError("Failed to load offers.");
       } finally {
         setLoading(false);
       }
@@ -61,12 +45,24 @@ export default function SDKLauncher() {
 
     loadOffers();
   }, []);
+
   if (loading) {
-    return <div>Loading offers...</div>;
+    return <div className="gb-sdk-loading">Loading offers...</div>;
   }
+
+  if (loadError) {
+    return (
+      <div className="gb-sdk-error" style={{ padding: 24, color: "#b91c1c" }}>
+        {loadError}
+      </div>
+    );
+  }
+
   return (
     <div>
-      <button onClick={() => setOpen(true)}>Open SDK Modal</button>
+      <button type="button" onClick={() => setOpen(true)}>
+        Open SDK Modal
+      </button>
 
       <Suspense fallback={null}>
         <SDKModalPage

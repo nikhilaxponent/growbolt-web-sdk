@@ -74,8 +74,7 @@
       if(typeof initFn !== 'function'){ appendLog('ERROR','GrowBolt.init is not a function'); return; }
       // Call init with proper context binding and test config
       const result = initFn.call(window.GrowBolt, {
-        apiKey: 'bEUroJ9o9bC4OLF_AXdaPtWR8MWM_RiZgXSA04ckOpo',
-        baseUrl: 'http://localhost'
+        apiKey: 'wS9D_bVsyVRRvoWaWVjqjgStPRkKMfLjfLmuBFUNWA0',
       });                                                       
       if(result && typeof result.then === 'function'){
         appendLog('INFO','init returned a Promise - waiting');

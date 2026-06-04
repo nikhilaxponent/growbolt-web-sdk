@@ -1,10 +1,11 @@
 import React from "react";
 import RewardBadge from "./RewardBadge";
+import RichContent from "./RichContent";
 
 type Props = {
   logo?: string;
   title: string;
-  subtitle?: string;
+  subtitle?: unknown;
   reward?: string;
   duration?: string;
 };
@@ -22,7 +23,9 @@ export default function OfferHeaderCard({
         {logo && <img src={logo} alt="logo" className="offer-header-logo" />}
         <div>
           <div className="offer-header-title">{title}</div>
-          {subtitle && <div className="offer-header-sub">{subtitle}</div>}
+          {subtitle ? (
+            <RichContent value={subtitle} className="offer-header-sub" as="div" />
+          ) : null}
         </div>
       </div>
       <div className="offer-header-right">

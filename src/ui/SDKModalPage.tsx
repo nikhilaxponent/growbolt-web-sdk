@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useMemo, useState, Suspense } from "react";
+import React, { useMemo, useState, Suspense, useEffect } from "react";
+import { mapApiOfferToModel } from "./mapOffer";
 const Modal = React.lazy(() => import("./Modal"));
 const OfferList = React.lazy(() => import("./OfferList"));
 const SDKFilterBar = React.lazy(() => import("./components/SDKFilterBar"));
@@ -27,30 +28,77 @@ export default function SDKModalPage({
   const [device, setDevice] = useState<string>("");
   const [payout, setPayout] = useState<string>("");
   const [sort, setSort] = useState<string>("trending");
+  const [remoteItems, setRemoteItems] = useState<OfferModel[] | null>(null);
+  const [fetching, setFetching] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const search = query.trim();
+    const os = device || undefined;
+    const hasApiFilters = Boolean(search || os);
+
+    if (!hasApiFilters) {
+      setRemoteItems(null);
+      return;
+    }
+
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      const GrowBolt = window.GrowBolt;
+      if (!GrowBolt) return;
+
+      setFetching(true);
+      try {
+        const apiOffers = await GrowBolt.listOffers({
+          search: search || undefined,
+          os,
+          forceRefresh: true,
+        });
+        if (cancelled) return;
+        setRemoteItems(apiOffers.map((offer: any) => mapApiOfferToModel(offer)));
+      } catch (err) {
+        if (!cancelled) {
+          console.error("Failed to fetch filtered offers", err);
+          setRemoteItems([]);
+        }
+      } finally {
+        if (!cancelled) setFetching(false);
+      }
+    }, 300);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [open, query, device]);
+
+  const sourceItems = remoteItems ?? items;
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const list = items.filter((m) => {
+    const list = sourceItems.filter((m) => {
       if (category !== "all") {
         const cat = (m as any).category;
-        if (typeof cat === "string" && cat !== category) return false;
+        if (!cat || cat !== category) return false;
       }
 
-      if (q) {
+      if (q && remoteItems === null) {
         const name = (m.name || "").toString().toLowerCase();
         const subtitle = ((m as any).subtitle || "").toString().toLowerCase();
         if (!name.includes(q) && !subtitle.includes(q)) return false;
       }
 
       if (device) {
-        const dev = (m as any).device;
-        if (typeof dev === "string" && dev !== device) return false;
+        const devOs = ((m as any).deviceOs || "").toString().toLowerCase();
+        const devLabel = ((m as any).device || "").toString().toLowerCase();
+        const wanted = device.toLowerCase();
+        if (devOs !== wanted && !devLabel.includes(wanted)) return false;
       }
 
       if (payout) {
-        const p = (m as any).payout || (m as any).earn;
-        if (typeof p === "string" && !p.toLowerCase().includes(payout))
-          return false;
+        const p = ((m as any).payoutType || "").toString().toLowerCase();
+        if (p && p !== payout.toLowerCase()) return false;
       }
 
       return true;
@@ -66,14 +114,16 @@ export default function SDKModalPage({
 
     if (sort === "high_payout") {
       return list.slice().sort((a, b) => {
-        const va = Number((a as any).payout || (a as any).earn || 0) || 0;
-        const vb = Number((b as any).payout || (b as any).earn || 0) || 0;
-        return vb - va;
+        const parseEarn = (v: unknown) => {
+          const n = parseFloat(String(v || "").replace(/[^\d.]/g, ""));
+          return Number.isFinite(n) ? n : 0;
+        };
+        return parseEarn((b as any).earn) - parseEarn((a as any).earn);
       });
     }
 
     return list;
-  }, [items, category, query, device, payout, sort]);
+  }, [sourceItems, category, query, device, payout, sort, remoteItems]);
 
   const trending = filtered.slice(0, 6);
 
@@ -89,9 +139,7 @@ export default function SDKModalPage({
       >
         {showStatus ? (
           <Suspense fallback={null}>
-            <ProgressPage
-              onBack={() => setShowStatus(false)}
-            />
+            <ProgressPage onBack={() => setShowStatus(false)} />
           </Suspense>
         ) : (
           <>
@@ -110,6 +158,12 @@ export default function SDKModalPage({
                   onSort={(s) => setSort(s)}
                 />
               </Suspense>
+
+              {fetching && (
+                <p className="sdk-section-title" style={{ opacity: 0.7 }}>
+                  Updating offers…
+                </p>
+              )}
 
               <h3 className="sdk-section-title">Trending Offers</h3>
               <Suspense fallback={null}>
