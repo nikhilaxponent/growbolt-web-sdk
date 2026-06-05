@@ -6,7 +6,11 @@ import { mapApiOfferToModel } from "./mapOffer";
 const SDKModalPage = React.lazy(() => import("./SDKModalPage"));
 const SDKDetailsPage = React.lazy(() => import("./SDKDetailsPage"));
 
-export default function SDKLauncher() {
+type SDKLauncherProps = {
+  onClose?: () => void;
+};
+
+export default function SDKLauncher({ onClose }: SDKLauncherProps) {
   const [open, setOpen] = React.useState(true);
   const [detailsOpen, setDetailsOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
@@ -60,10 +64,6 @@ export default function SDKLauncher() {
 
   return (
     <div>
-      {/* <button type="button" onClick={() => setOpen(true)}>
-        Open SDK Modal
-      </button> */}
-
       <Suspense fallback={null}>
         <SDKModalPage
           open={open}
@@ -79,7 +79,7 @@ export default function SDKLauncher() {
             </div>
           }
           items={offers}
-          onClose={() => setOpen(false)}
+          onClose={onClose ? onClose : () => setOpen(false)}
           onItemClick={(m) => {
             setSelectedOffer(m);
             setOpen(false);

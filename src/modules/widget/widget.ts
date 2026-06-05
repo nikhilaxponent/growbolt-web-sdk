@@ -44,8 +44,12 @@ export function openOfferwall() {
     root = createRoot(container);
   }
 
-
-  root.render(React.createElement(SDKLauncher));
+  root.render(
+    React.createElement(SDKLauncher, {
+      key: Date.now(),
+      onClose: closeOfferwall,
+    }),
+  );
 }
 
 export function closeOfferwall() {

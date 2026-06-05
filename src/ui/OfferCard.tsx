@@ -68,13 +68,12 @@ export default function OfferCard({
           />
         ) : (
           <div
-            className="w-35 h-35 rounded-md flex items-center justify-center text-white font-bold text-xl"
+            className="w-35 h-35 rounded-md flex items-center justify-center text-white font-bold text-lg"
             style={{ backgroundColor: "#000" }}
           >
             {model.name?.charAt(0)?.toUpperCase() || "G"}
           </div>
         )}
-
         <div className="text-sm font-semibold text-gray-800 pt-2">
           {model.name}
         </div>
@@ -113,7 +112,7 @@ export default function OfferCard({
             alignItems: "center",
             justifyContent: "center",
             fontWeight: 700,
-            fontSize: "20px",
+            fontSize: "12px",
             borderRadius: "8px",
             minWidth: "60px",
             minHeight: "60px",

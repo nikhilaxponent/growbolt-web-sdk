@@ -4,6 +4,8 @@ import { toPlainText } from "../utils/sanitizeContent";
 import { resolveTrackedOfferUrl } from "../utils/offerClick";
 import PaymentMilestoneCard from "./components/PaymentMilestoneCard";
 import ClaimLinkModal from "./components/ClaimLinkModal";
+import noteIcon from "./assets/note.svg";
+import disclaimerIcon from "./assets/disclaimer.svg";
 import RichContent from "./components/RichContent";
 const Modal = React.lazy(() => import("./Modal"));
 const BannerSection = React.lazy(() => import("./components/BannerSection"));
@@ -147,7 +149,21 @@ export default function SDKDetailsPage({
             aria-label="Back to offers"
             onClick={() => onBack?.()}
           >
-            {"<"}
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M15 6L9 12L15 18"
+                stroke="#059669"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </button>
 
           <Suspense fallback={null}>
@@ -246,7 +262,9 @@ export default function SDKDetailsPage({
                     }}
                   >
                     <div className="important-note-inner">
-                      <div className="important-icon">⚠️</div>
+                      <div className="important-icon">
+                        <img src={noteIcon} alt="Note" />
+                      </div>
 
                       <div>
                         <div className="important-title">Important Note</div>
@@ -264,7 +282,9 @@ export default function SDKDetailsPage({
                           borderTop: "1px solid rgba(255,255,255,0.1)",
                         }}
                       >
-                        <div className="important-icon">⚠️</div>
+                        <div className="important-icon">
+                          <img src={disclaimerIcon} alt="Disclaimer" />
+                        </div>
 
                         <div>
                           <div className="important-title">Disclaimer</div>

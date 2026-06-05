@@ -6,12 +6,8 @@ export function formatAmount(value: string | number | undefined) {
   return Number.isInteger(num) ? num.toString() : num.toFixed(1);
 }
 
-export function deriveUiCategory(
-  offer: any,
-): "apps" | "games" | undefined {
-  const tags = (offer?.tags || []).map((t: unknown) =>
-    String(t).toLowerCase(),
-  );
+export function deriveUiCategory(offer: any): "apps" | "games" | undefined {
+  const tags = (offer?.tags || []).map((t: unknown) => String(t).toLowerCase());
   const categories = (offer?.full_categories || []).map((c: any) => {
     if (c && typeof c === "object") {
       return String(c.title || c.id || "").toLowerCase();
@@ -41,7 +37,7 @@ export function mapApiOfferToModel(offer: any) {
 
   return {
     id: String(offer.id),
-    name: title.length > 30 ? `${title.substring(0, 30)}...` : title,
+    name: title.length > 20 ? `${title.substring(0, 20)}...` : title,
     subtitle: toPlainText(
       offer.payout?.title ||
         offer.payments?.[0]?.title ||

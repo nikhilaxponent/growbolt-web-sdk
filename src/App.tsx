@@ -4,7 +4,12 @@ import SDKLauncher from "./ui/SDKLauncher";
 
 export default function App() {
   return (
-    <div style={{ fontFamily: "Inter, system-ui, Arial", padding: 20 }}>
+    <div
+      style={{
+        fontFamily: "Rethink Sans, Inter, system-ui, Arial",
+        padding: 20,
+      }}
+    >
       <SDKLauncher />
     </div>
   );
