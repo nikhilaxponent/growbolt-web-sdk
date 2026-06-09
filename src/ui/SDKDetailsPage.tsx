@@ -6,6 +6,9 @@ import PaymentMilestoneCard from "./components/PaymentMilestoneCard";
 import ClaimLinkModal from "./components/ClaimLinkModal";
 import noteIcon from "./assets/note.svg";
 import disclaimerIcon from "./assets/disclaimer.svg";
+import completedIcon from "./assets/completed.svg";
+import progressIcon from "./assets/progress.svg";
+import lockedIcon from "./assets/locked.svg";
 import RichContent from "./components/RichContent";
 const Modal = React.lazy(() => import("./Modal"));
 const BannerSection = React.lazy(() => import("./components/BannerSection"));
@@ -45,6 +48,7 @@ export default function SDKDetailsPage({
 
   useEffect(() => {
     if (!open || !offerId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDetails(null);
       setError(null);
       return;
@@ -244,8 +248,17 @@ export default function SDKDetailsPage({
                             key={payment.id || index}
                             step={index + 1}
                             title={payment.title || payment.goal}
-                            description={payment.description}
+                            description={payment?.description}
                             reward={`${formatAmount(payment.total)}`}
+                            statusIcon={
+                              payment.status === "completed"
+                                ? completedIcon
+                                : payment.status === "active" ||
+                                    payment.status === "pending"
+                                  ? progressIcon
+                                  : lockedIcon
+                            }
+                            onClaim={handleCTAClick}
                           />
                         ))}
                       </div>

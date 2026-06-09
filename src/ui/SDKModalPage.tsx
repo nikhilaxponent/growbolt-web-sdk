@@ -56,7 +56,9 @@ export default function SDKModalPage({
           forceRefresh: true,
         });
         if (cancelled) return;
-        setRemoteItems(apiOffers.map((offer: any) => mapApiOfferToModel(offer)));
+        setRemoteItems(
+          apiOffers.map((offer: any) => mapApiOfferToModel(offer)),
+        );
       } catch (err) {
         if (!cancelled) {
           console.error("Failed to fetch filtered offers", err);

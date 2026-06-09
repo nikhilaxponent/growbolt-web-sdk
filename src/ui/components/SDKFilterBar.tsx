@@ -223,7 +223,7 @@ const SDKFilterBar: React.FC<Props> = ({
             className="filter-input"
           />
 
-          <div style={{ width: 140 }}>
+          <div className="filter-dropdown">
             <Dropdown
               options={deviceOptions}
               value={localDevice}
@@ -236,7 +236,7 @@ const SDKFilterBar: React.FC<Props> = ({
             />
           </div>
 
-          <div style={{ width: 140 }}>
+          <div className="filter-dropdown">
             <Dropdown
               options={payoutOptions}
               value={localPayout}
@@ -249,7 +249,7 @@ const SDKFilterBar: React.FC<Props> = ({
             />
           </div>
 
-          <div style={{ width: 140 }}>
+          <div className="filter-dropdown">
             <Dropdown
               options={sortOptions}
               value={localSort}

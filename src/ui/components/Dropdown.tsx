@@ -141,7 +141,7 @@ export default function Dropdown<T = string>({
               width: rect.width,
               maxHeight: 320,
               overflow: "auto",
-              zIndex: 99999,
+              zIndex: 1000000,
             }}
           >
             {options.map((opt, i) => {

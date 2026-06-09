@@ -35,7 +35,6 @@ const OfferList: React.FC<Props> = ({
     if (!items || items.length === 0) {
       return <div className="gb-list-grid">No offers</div>;
     }
-
     return (
       <div className="gb-list-grid">
         {items.map((m) => (

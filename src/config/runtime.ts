@@ -17,7 +17,10 @@ export const LOCAL_API_BASE_URL = "http://localhost";
 
 function readBuildDefault(): string | undefined {
   try {
-    if (typeof __GROWBOLT_API_BASE_URL__ === "string" && __GROWBOLT_API_BASE_URL__) {
+    if (
+      typeof __GROWBOLT_API_BASE_URL__ === "string" &&
+      __GROWBOLT_API_BASE_URL__
+    ) {
       return __GROWBOLT_API_BASE_URL__;
     }
   } catch {

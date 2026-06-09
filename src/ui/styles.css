@@ -26,6 +26,9 @@
 }
 .gb-modal-body{padding:20px 24px;overflow:auto}
 
+.sdk-modal-page .gb-modal-body{
+  padding-bottom:120px;
+}
 /* Modal logo sizing to preserve aspect ratio and show full logo */
 .modal-logo{height:48px;width:auto;object-fit:contain;display:block}
 
@@ -133,8 +136,8 @@
 .gb-list-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:8px 0}
 
 /* Ensure single-column on small screens so All Offers remains readable */
-@media (max-width: 640px) {
-  .gb-list-grid{grid-template-columns:1fr;gap:12px}
+@media (max-width: 480px) {
+  .gb-list-grid{grid-template-columns:4fr;gap:12px}
 }
 .list-item{background:#fff;border-radius:16px;padding:20px;border:1px solid #f3f4f6;display:flex;align-items:center;gap:16px;box-shadow:0 8px 18px rgba(15,23,42,0.04)}
 .list-item .logo{width:64px;height:64px;border-radius:10px;object-fit:cover}
@@ -256,11 +259,13 @@
   .important-note{padding:14px}
 
   /* Compact scroll: show two cards per row on small screens */
-  .gb-compact-scroll{overflow-x:auto;gap:12px;padding:8px 0}
-  .gb-compact-item{flex:0 0 46%}
+  .gb-compact-scroll{overflow-x:auto;gap:10px;padding:8px 0}
+  .gb-compact-item{
+  flex:0 0 25%;
+}
 
   /* make compact cards full-width in flow */
-  .gb-offer-card.compact{width:100%;align-items:flex-start}
+  .gb-offer-card.compact{width:100%;align-items:flex-start; min-width: 0;}
 
   /* Keep list items horizontal on mobile but constrain text to avoid overflow */
   .list-item{flex-direction:row;align-items:center;gap:12px;justify-content:space-between}
@@ -278,11 +283,60 @@
   .sticky-cta-wrap{position:fixed;left:12px;right:12px;bottom:12px;width:auto;max-width:none;transform:none}
   .sticky-cta{max-width:none}
 
-  /* Make modal cover full viewport on small screens for better UX */
-  .gb-modal-backdrop{align-items:flex-start;padding:0}
-  .gb-modal{border-radius:0;max-width:100%;height:100vh;max-height:100vh;width:100%;display:flex;flex-direction:column}
-  .gb-modal-header{position:sticky;top:0;background:transparent;padding:14px 16px;z-index:5}
-  .gb-modal-body{padding:12px 16px;flex:1;overflow:auto}
+  /* Keep modals centered on small screens for better UX */
+.gb-modal-backdrop{
+  padding:12px;
+  align-items:center;
+  justify-content:center;
+}
+
+.gb-modal{
+  width:calc(100vw - 24px);
+  max-width:100%;
+  max-height:calc(95vh - 16px);
+  margin:0 auto;
+  border-radius:20px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+  .gb-modal-header{
+    flex-shrink:0;
+    position:sticky;
+    top:0;
+    z-index:10;
+    background:#fff;
+  }
+
+.gb-modal-body{
+  flex:1;
+  min-height:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+}
+
+.gb-claim-modal-backdrop{
+  padding:12px;
+  align-items:center;
+  justify-content:center;
+}
+
+.gb-claim-modal{
+  width:calc(100vw - 32px);
+  max-width:100%;
+  max-height:calc(96vh - 16px);
+  overflow:auto;
+  padding:20px 24px;
+  border-radius:16px;
+}
+
+.gb-claim-qr,
+.gb-claim-qr-placeholder{
+  width:min(280px,86vw);
+  height:min(280px,86vw);
+}
 }
 
 /* Tablet adjustments */
@@ -389,3 +443,51 @@
 .offer-description{font-size:14px;color:#475569;line-height:1.5}
 .gb-sdk-loading,.gb-sdk-error{padding:20px;font-family:system-ui,sans-serif}
 
+@media (max-width:768px){
+
+  .filter-row{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+
+  .filter-pills{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+
+  .filter-pills::-webkit-scrollbar{
+    display:none;
+  }
+
+  .filter-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    width:100%;
+    margin-top:0;
+  }
+
+  /* Search bar full width on first row */
+  .filter-input{
+    flex:0 0 100%;
+    width:100%;
+  }
+
+  /* 3 dropdowns in second row */
+  .filter-controls > div{
+    flex:1;
+    min-width:90px;
+  }
+
+  .filter-select{
+    width:100%;
+  }
+
+  .filter-dropdown{
+  flex:1;
+  min-width:90px;
+}
+}

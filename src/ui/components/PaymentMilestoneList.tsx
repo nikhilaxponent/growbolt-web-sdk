@@ -5,8 +5,6 @@ type Props = {
 };
 
 export default function PaymentMilestoneList({ payments }: Props) {
-  console.log("Payments received:", payments);
-
   if (!payments?.length) return null;
 
   return (
@@ -21,8 +19,6 @@ export default function PaymentMilestoneList({ payments }: Props) {
         {payments
           .sort((a, b) => a.position - b.position)
           .map((payment, index) => {
-            console.log("Payment item:", payment);
-
             return (
               <PaymentMilestoneCard
                 key={payment.id || index}
