@@ -99,7 +99,13 @@ export default function SDKDetailsPage({
   const subtitle = details?.description || fallbackOffer?.subtitle || "";
   const logo =
     details?.logo || details?.logo_source || fallbackOffer?.logo || "";
-  const bannerImage = details?.creatives?.[0]?.url || logo;
+  const bannerImage = (() => {
+    const creatives = details?.creatives;
+    if (Array.isArray(creatives) && creatives.length > 0) {
+      return creatives[0]?.url || logo;
+    }
+    return logo;
+  })();
   const reward =
     totalReward > 0
       ? `₹${formatAmount(totalReward)}`
