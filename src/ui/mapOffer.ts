@@ -6,6 +6,12 @@ export function formatAmount(value: string | number | undefined) {
   return Number.isInteger(num) ? num.toString() : num.toFixed(1);
 }
 
+export function getCurrencySymbol(currencyStr: string | undefined): string {
+  if (!currencyStr) return "₹";
+  const normalized = currencyStr.trim().toUpperCase();
+  return normalized === "INR" || normalized === "₹" ? "₹" : "$";
+}
+
 export function deriveUiCategory(offer: any): "apps" | "games" | undefined {
   const tags = (offer?.tags || []).map((t: unknown) => String(t).toLowerCase());
   const categories = (offer?.full_categories || []).map((c: any) => {
@@ -30,10 +36,12 @@ export function mapApiOfferToModel(offer: any) {
   const deviceLabel = osKeys.join(", ");
   const primaryOs = osKeys[0]?.toLowerCase() || "";
 
-  const payoutTotal =
-    offer?.payout?.total ??
-    offer?.payments?.[0]?.total ??
-    offer?.payments?.[0]?.revenue;
+  const payoutTotal = offer?.payout?.total ?? offer?.payments?.[0]?.total;
+  const rawCurrency =
+    offer.payout?.currency ||
+    offer.payments?.find((p: any) => p?.currency)?.currency ||
+    "INR";
+  const currencySymbol = getCurrencySymbol(rawCurrency);
 
   return {
     id: String(offer.id),
@@ -44,8 +52,9 @@ export function mapApiOfferToModel(offer: any) {
         offer.description ||
         "Complete offer and earn rewards",
     ),
+    currency: rawCurrency,
     logo: offer.logo,
-    earn: `₹${formatAmount(payoutTotal)}`,
+    earn: `${currencySymbol}${formatAmount(payoutTotal)}`,
     duration:
       offer?.expiry_days > 0
         ? `${offer.expiry_days} ${

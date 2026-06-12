@@ -25,7 +25,7 @@ injectCSS("growbolt-sdk-styles", styles);
 
 let root: Root | null = null;
 
-export function openOfferwall() {
+export function openOfferwall(opts?: { url?: string }) {
   let container = document.getElementById("growbolt-root");
 
   if (!container) {

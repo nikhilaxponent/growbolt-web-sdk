@@ -5,8 +5,9 @@ export interface OfferModel {
   banner?: string;
   subtitle?: string;
   earn?: string;
-  device?: "Android" | "iOS";
+  device?: string;
   duration?: string;
+  currency?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sections?: any[];
 }

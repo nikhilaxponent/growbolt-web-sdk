@@ -2,6 +2,7 @@
 import React, { Suspense, useState, useEffect } from "react";
 import { toPlainText } from "../utils/sanitizeContent";
 import { resolveTrackedOfferUrl } from "../utils/offerClick";
+import { getCurrencySymbol } from "./mapOffer";
 import PaymentMilestoneCard from "./components/PaymentMilestoneCard";
 import ClaimLinkModal from "./components/ClaimLinkModal";
 import noteIcon from "./assets/note.svg";
@@ -28,6 +29,9 @@ type Props = {
     earn?: string;
     preview_url?: string;
     url?: string;
+    currency?: string;
+    device?: string;
+    deviceOs?: string;
   } | null;
   onClose?: () => void;
   onBack?: () => void;
@@ -106,9 +110,15 @@ export default function SDKDetailsPage({
     }
     return logo;
   })();
+  const detailsCurrency =
+    details?.payout?.currency ||
+    details?.payments?.find((p: any) => p?.currency)?.currency ||
+    fallbackOffer?.currency ||
+    "INR";
+  const currencySymbol = getCurrencySymbol(detailsCurrency);
   const reward =
     totalReward > 0
-      ? `₹${formatAmount(totalReward)}`
+      ? `${currencySymbol}${formatAmount(totalReward)}`
       : fallbackOffer?.earn || "";
   const duration =
     details?.expiry_days > 0
@@ -116,6 +126,10 @@ export default function SDKDetailsPage({
           details?.expiry_type === "hours" ? "Hours" : "Days"
         }`
       : "Instant";
+  const deviceOs =
+    details?.strictly_os
+      ? Object.keys(details.strictly_os.items || {})[0]?.toLowerCase()
+      : fallbackOffer?.deviceOs || "";
   const note =
     details?.note ||
     "You will Not be rewarded if you have installed this app before.";
@@ -152,7 +166,7 @@ export default function SDKDetailsPage({
       <Modal open={open} onClose={onClose} className="sdk-details-modal">
         <div
           className="sdk-details-root bg-gray-50"
-          style={{ minHeight: "100%", paddingBottom: "100px" }}
+          style={{ minHeight: "100%" }}
         >
           <button
             className="details-back-btn"
@@ -219,6 +233,7 @@ export default function SDKDetailsPage({
                         subtitle={subtitle}
                         duration={duration}
                         reward={reward}
+                        deviceOs={deviceOs}
                       />
                     </Suspense>
                   </div>
@@ -234,6 +249,7 @@ export default function SDKDetailsPage({
                       subtitle={subtitle}
                       duration={duration}
                       reward={reward}
+                      deviceOs={deviceOs}
                     />
                   </Suspense>
                 </div>
@@ -255,7 +271,7 @@ export default function SDKDetailsPage({
                             step={index + 1}
                             title={payment.title || payment.goal}
                             description={payment?.description}
-                            reward={`${formatAmount(payment.total)}`}
+                            reward={`${currencySymbol}${formatAmount(payment.total)}`}
                             statusIcon={
                               payment.status === "completed"
                                 ? completedIcon

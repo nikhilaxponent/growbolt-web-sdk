@@ -63,13 +63,14 @@ export default function OfferCard({
           <img
             src={model.logo}
             alt={model.name}
-            className="w-35 h-35 object-cover rounded-md"
+            className="w-35 h-35 object-cover"
+            style={{ borderRadius: "4px" }}
             onError={() => setImgError(true)}
           />
         ) : (
           <div
-            className="w-35 h-35 rounded-md flex items-center justify-center text-white font-bold text-lg"
-            style={{ backgroundColor: "#000" }}
+            className="w-35 h-35 flex items-center justify-center text-white font-bold text-lg"
+            style={{ backgroundColor: "#000", borderRadius: "8px" }}
           >
             {model.name?.charAt(0)?.toUpperCase() || "G"}
           </div>
@@ -113,9 +114,9 @@ export default function OfferCard({
             justifyContent: "center",
             fontWeight: 700,
             fontSize: "12px",
-            borderRadius: "8px",
-            minWidth: "60px",
-            minHeight: "60px",
+            borderRadius: "6px",
+            minWidth: "70px",
+            minHeight: "70px",
           }}
         >
           {model.name?.charAt(0)?.toUpperCase() || "G"}
@@ -123,7 +124,7 @@ export default function OfferCard({
       )}
 
       <div className="meta">
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div className="title-row">
           <div className="title">{model.name}</div>
 
           <span className="pill-timer" style={{ marginLeft: 6, color: "#fff" }}>
@@ -146,17 +147,17 @@ export default function OfferCard({
         <div style={{ marginTop: 8 }}>
           {((model as any).device === "android" ||
             (model as any).device === "Android") && (
-            <img
-              src={androidIcon}
-              alt="Android"
-              style={{ width: 20, height: 20 }}
-            />
-          )}
+              <img
+                src={androidIcon}
+                alt="Android"
+                style={{ width: 20, height: 20 }}
+              />
+            )}
 
           {((model as any).device === "ios" ||
             (model as any).device === "iOS") && (
-            <img src={iosIcon} alt="iOS" style={{ width: 20, height: 20 }} />
-          )}
+              <img src={iosIcon} alt="iOS" style={{ width: 20, height: 20 }} />
+            )}
         </div>
       </div>
 

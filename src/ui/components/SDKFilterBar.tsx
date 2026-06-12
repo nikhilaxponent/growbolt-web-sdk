@@ -212,7 +212,7 @@ const SDKFilterBar: React.FC<Props> = ({
           </button>
         </div>
 
-        <div className="filter-controls">
+        <div className="filter-search">
           <input
             value={localQuery}
             onChange={(e) => {
@@ -222,7 +222,9 @@ const SDKFilterBar: React.FC<Props> = ({
             placeholder="Search For Offers..."
             className="filter-input"
           />
+        </div>
 
+        <div className="filter-dropdowns">
           <div className="filter-dropdown">
             <Dropdown
               options={deviceOptions}

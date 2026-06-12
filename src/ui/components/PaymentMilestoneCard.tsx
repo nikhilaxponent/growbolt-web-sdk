@@ -22,7 +22,7 @@ export default function PaymentMilestoneCard({
     <div className="instruction-card rounded-xl shadow-card">
       <div
         className="instruction-card-inner"
-        style={{ justifyContent: "space-between", alignItems: "flex-start" }}
+        style={{ justifyContent: "space-between", alignItems: "center" }}
       >
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
@@ -49,8 +49,13 @@ export default function PaymentMilestoneCard({
         </div>
 
         <div
-          className="right-col"
-          style={{ alignItems: "flex-end", minWidth: 130, gap: 10 }}
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: "12px",
+            flexShrink: 0,
+          }}
         >
           <img
             src={statusIcon || progressIcon}
@@ -66,7 +71,7 @@ export default function PaymentMilestoneCard({
               cursor: onClaim ? "pointer" : "default",
             }}
           >
-            Claim ₹{reward}
+            {reward}
           </button>
         </div>
       </div>
