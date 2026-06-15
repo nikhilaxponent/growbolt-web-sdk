@@ -58,7 +58,7 @@ export default function OfferHeaderCard({
       </div>
       <div className="offer-header-right">
         <div className="offer-header-right-stack" style={{ alignItems: "flex-end", gap: "2px" }}>
-          <div style={{ fontSize: "13px", color: "#6b7280", fontWeight: 600 }}>Earn</div>
+          <div style={{ fontSize: "13px", color: "#6b7280", fontWeight: 600, textAlign: "center", }}>Earn</div>
           {reward && <div className="offer-reward" style={{ fontSize: "22px", fontWeight: 800 }}>{reward}</div>}
         </div>
       </div>
