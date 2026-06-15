@@ -35,8 +35,9 @@ export function mapApiOfferToModel(offer: any) {
   const osKeys = Object.keys(offer?.strictly_os?.items || {});
   const deviceLabel = osKeys.join(", ");
   const primaryOs = osKeys[0]?.toLowerCase() || "";
+  console.log("Payout Total", offer?.payout?.user_payout);
 
-  const payoutTotal = offer?.payout?.user_payout ?? offer?.payments?.[0]?.user_payout;
+  const payoutTotal = offer?.payout?.user_payout ?? "";
   const rawCurrency =
     offer.payout?.currency ||
     offer.payments?.find((p: any) => p?.currency)?.currency ||
