@@ -133,7 +133,7 @@ export default function Dropdown<T = string>({
             ref={menuRef}
             role="listbox"
             tabIndex={-1}
-            className={`z-50 bg-white rounded-md shadow ${menuClassName}`}
+            className={`gb-dropdown-menu z-50 ${menuClassName}`}
             style={{
               position: "fixed",
               left: rect.left,
@@ -155,8 +155,7 @@ export default function Dropdown<T = string>({
                   ref={(el) => {
                     /* attach nothing here; menuRef is root */
                   }}
-                  className={`flex items-center px-3 cursor-pointer ${opt.disabled ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-50"} ${sel ? "bg-emerald-50" : ""} ${optionClassName}`}
-                  style={{ height: 44 }}
+                  className={`gb-dropdown-option ${opt.disabled ? "disabled" : ""} ${sel ? "selected" : ""} ${optionClassName}`}
                 >
                   {renderOption ? (
                     renderOption(opt, sel)
