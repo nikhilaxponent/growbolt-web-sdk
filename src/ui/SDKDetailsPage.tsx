@@ -89,7 +89,7 @@ export default function SDKDetailsPage({
 
   const formatAmount = (value: string | number | undefined) => {
     const num = Number(value || 0);
-    return Number.isInteger(num) ? num.toString() : num.toFixed(1);
+    return Number.isInteger(num) ? num.toString() : num.toFixed(3);
   };
 
   const totalReward =
