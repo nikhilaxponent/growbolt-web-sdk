@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && cp dist/sdk.js playground/dist-sdk.js",
+    "build": "vite build",
     "build:local": "VITE_API_BASE_URL=http://localhost vite build",
     "build:prod": "VITE_API_BASE_URL=https://admin.growbolt.ai vite build",
     "preview": "vite preview",
