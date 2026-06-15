@@ -94,7 +94,7 @@ export default function SDKDetailsPage({
 
   const totalReward =
     details?.payments?.reduce(
-      (sum: number, payment: any) => sum + Number(payment.total || 0),
+      (sum: number, payment: any) => sum + Number(payment.user_payout || 0),
       0,
     ) || 0;
 
@@ -122,9 +122,8 @@ export default function SDKDetailsPage({
       : fallbackOffer?.earn || "";
   const duration =
     details?.expiry_days > 0
-      ? `${details.expiry_days} ${
-          details?.expiry_type === "hours" ? "Hours" : "Days"
-        }`
+      ? `${details.expiry_days} ${details?.expiry_type === "hours" ? "Hours" : "Days"
+      }`
       : "Instant";
   const deviceOs =
     details?.strictly_os
@@ -271,12 +270,12 @@ export default function SDKDetailsPage({
                             step={index + 1}
                             title={payment.title || payment.goal}
                             description={payment?.description}
-                            reward={`${currencySymbol}${formatAmount(payment.total)}`}
+                            reward={`${currencySymbol}${formatAmount(payment.user_payout)}`}
                             statusIcon={
                               payment.status === "completed"
                                 ? completedIcon
                                 : payment.status === "active" ||
-                                    payment.status === "pending"
+                                  payment.status === "pending"
                                   ? progressIcon
                                   : lockedIcon
                             }

@@ -36,7 +36,7 @@ export function mapApiOfferToModel(offer: any) {
   const deviceLabel = osKeys.join(", ");
   const primaryOs = osKeys[0]?.toLowerCase() || "";
 
-  const payoutTotal = offer?.payout?.total ?? offer?.payments?.[0]?.total;
+  const payoutTotal = offer?.payout?.user_payout ?? offer?.payments?.[0]?.user_payout;
   const rawCurrency =
     offer.payout?.currency ||
     offer.payments?.find((p: any) => p?.currency)?.currency ||
@@ -48,18 +48,17 @@ export function mapApiOfferToModel(offer: any) {
     name: title.length > 20 ? `${title.substring(0, 20)}...` : title,
     subtitle: toPlainText(
       offer.payout?.title ||
-        offer.payments?.[0]?.title ||
-        offer.description ||
-        "Complete offer and earn rewards",
+      offer.payments?.[0]?.title ||
+      offer.description ||
+      "Complete offer and earn rewards",
     ),
     currency: rawCurrency,
     logo: offer.logo,
     earn: `${currencySymbol}${formatAmount(payoutTotal)}`,
     duration:
       offer?.expiry_days > 0
-        ? `${offer.expiry_days} ${
-            offer?.expiry_type === "hours" ? "Hours" : "Days"
-          }`
+        ? `${offer.expiry_days} ${offer?.expiry_type === "hours" ? "Hours" : "Days"
+        }`
         : "Instant",
     device: deviceLabel,
     deviceOs: primaryOs,
