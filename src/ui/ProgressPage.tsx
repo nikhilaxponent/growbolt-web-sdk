@@ -109,10 +109,22 @@ export default function ProgressPage({ onBack }: Props) {
       {!loading && !error && filtered.length === 0 && (
         <div className="gb-empty-container" style={{ padding: "60px 0", textAlign: "center", color: "#666" }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>
-            <img src={emptyIcon} alt="Empty" width={40} height={40} />
+            <img src={emptyIcon} alt="Empty" width={150} height={150} />
           </div>
-          <p style={{ fontWeight: 600, fontSize: 16, margin: 0 }}>Explore offer</p>
-          <p style={{ fontSize: 13, color: "#999", marginTop: 4 }}>Complete a new offer to start earning rewards</p>
+          <div
+            className="earn-pill"
+            onClick={onBack}
+            style={{
+              fontWeight: 600,
+              fontSize: 22,
+              margin: "0 auto",
+              width: "200px",
+              cursor: "pointer",
+            }}
+          >
+            Explore offer
+          </div>
+          <p style={{ fontSize: 18, color: "#999", marginTop: 4 }}>Complete a new offer to start earning rewards</p>
         </div>
       )}
 

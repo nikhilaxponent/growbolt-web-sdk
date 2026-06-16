@@ -60,8 +60,8 @@ export function mapApiOfferToModel(offer: any) {
     logo: offer.logo,
     earn: `${currency_icon ? "" : currencySymbol}${formatAmount(payoutTotal)}`,
     duration:
-      offer?.expiry_days > 0
-        ? `${offer.expiry_days} ${offer?.expiry_type === "hours" ? "Hours" : "Days"
+      offer?.expiry > 0
+        ? `${offer.expiry} ${offer?.expiry_type === "hours" ? "Hours" : "Days"
         }`
         : "Instant",
     device: deviceLabel,
