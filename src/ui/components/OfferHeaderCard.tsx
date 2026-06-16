@@ -8,7 +8,7 @@ type Props = {
   logo?: string;
   title: string;
   subtitle?: unknown;
-  reward?: string;
+  reward?: React.ReactNode;
   duration?: string;
   deviceOs?: string;
 };

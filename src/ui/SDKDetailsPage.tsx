@@ -110,6 +110,10 @@ export default function SDKDetailsPage({
     }
     return logo;
   })();
+  const currency_icon =
+    details?.currency_icon ||
+    details?.payments?.find((p: any) => p?.currency_icon)?.currency_icon ||
+    "";
   const detailsCurrency =
     details?.payout?.currency ||
     details?.payments?.find((p: any) => p?.currency)?.currency ||
@@ -117,9 +121,21 @@ export default function SDKDetailsPage({
     "INR";
   const currencySymbol = getCurrencySymbol(detailsCurrency);
   const reward =
-    totalReward > 0
-      ? `${currencySymbol}${formatAmount(totalReward)}`
-      : fallbackOffer?.earn || "";
+    totalReward > 0 ? (
+      <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+        {currency_icon && (
+          <img
+            src={currency_icon}
+            alt="currency"
+            className="h-8 w-8"
+            style={{ objectFit: "contain" }}
+          />
+        )}
+        {formatAmount(totalReward)}
+      </span>
+    ) : (
+      fallbackOffer?.earn || ""
+    );
   const duration =
     details?.expiry_days > 0
       ? `${details.expiry_days} ${details?.expiry_type === "hours" ? "Hours" : "Days"
@@ -270,7 +286,19 @@ export default function SDKDetailsPage({
                             step={index + 1}
                             title={payment.title || payment.goal}
                             description={payment?.description}
-                            reward={`${currencySymbol}${formatAmount(payment.user_payout)}`}
+                            reward={
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                                {payment.currency_icon && (
+                                  <img
+                                    src={payment.currency_icon}
+                                    alt="currency"
+                                    className="h-5 w-5"
+                                    style={{ objectFit: "contain" }}
+                                  />
+                                )}
+                                {formatAmount(payment.user_payout)}
+                              </span>
+                            }
                             statusIcon={
                               payment.status === "completed"
                                 ? completedIcon

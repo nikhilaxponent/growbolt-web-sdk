@@ -6,7 +6,7 @@ type Props = {
   title: string;
   description?: unknown;
   statusIcon?: string;
-  reward: string | number;
+  reward: React.ReactNode;
   onClaim?: () => void;
 };
 
@@ -22,7 +22,7 @@ export default function PaymentMilestoneCard({
     <div className="instruction-card rounded-xl shadow-card">
       <div
         className="instruction-card-inner"
-        style={{ justifyContent: "space-between", alignItems: "center" }}
+        style={{ justifyContent: "space-between", alignItems: "flex-start" }}
       >
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
@@ -49,13 +49,8 @@ export default function PaymentMilestoneCard({
         </div>
 
         <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            gap: "12px",
-            flexShrink: 0,
-          }}
+          className="right-col"
+          style={{ alignItems: "flex-end", minWidth: 130, gap: 10 }}
         >
           <img
             src={statusIcon || progressIcon}
