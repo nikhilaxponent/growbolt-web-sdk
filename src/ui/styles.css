@@ -1158,7 +1158,7 @@
   }
 
   .gb-compact-item {
-    flex: 0 0 25%;
+    /* flex: 0 0 %; */
   }
 
   /* make compact cards full-width in flow */
@@ -1325,7 +1325,7 @@
   }
 
   .gb-compact-item {
-    flex: 0 0 40%
+    /* flex: 0 0 40% */
   }
 }
 
