@@ -76,7 +76,7 @@ export default function Modal({
                 aria-label="Open My Progress"
                 onClick={onAction}
               >
-                <span className="pill-icon">
+                <span className="">
                   <img src={statusIcon} alt="status" />
                 </span>
                 <span className="pill-text">My Progress</span>
