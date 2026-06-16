@@ -2,7 +2,6 @@
 import React, { Suspense, useState, useEffect } from "react";
 import { toPlainText } from "../utils/sanitizeContent";
 import { resolveTrackedOfferUrl } from "../utils/offerClick";
-import { getCurrencySymbol } from "./mapOffer";
 import PaymentMilestoneCard from "./components/PaymentMilestoneCard";
 import ClaimLinkModal from "./components/ClaimLinkModal";
 import noteIcon from "./assets/note.svg";
@@ -114,12 +113,13 @@ export default function SDKDetailsPage({
     details?.currency_icon ||
     details?.payments?.find((p: any) => p?.currency_icon)?.currency_icon ||
     "";
+  console.log(currency_icon, "currency_icon",);
+
   const detailsCurrency =
     details?.payout?.currency ||
     details?.payments?.find((p: any) => p?.currency)?.currency ||
     fallbackOffer?.currency ||
     "INR";
-  const currencySymbol = getCurrencySymbol(detailsCurrency);
   const reward =
     totalReward > 0 ? (
       <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
