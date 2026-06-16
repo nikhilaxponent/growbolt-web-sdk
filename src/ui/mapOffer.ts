@@ -36,6 +36,10 @@ export function mapApiOfferToModel(offer: any) {
   const deviceLabel = osKeys.join(", ");
   const primaryOs = osKeys[0]?.toLowerCase() || "";
   const payoutTotal = offer?.payout?.user_payout ?? "";
+  const currency_icon =
+    offer.payout?.currency_icon ||
+    offer.payments?.find((p: any) => p?.currency_icon)?.currency_icon ||
+    "";
   const rawCurrency =
     offer.payout?.currency ||
     offer.payments?.find((p: any) => p?.currency)?.currency ||
@@ -52,8 +56,9 @@ export function mapApiOfferToModel(offer: any) {
       "Complete offer and earn rewards",
     ),
     currency: rawCurrency,
+    currency_icon,
     logo: offer.logo,
-    earn: `${currencySymbol}${formatAmount(payoutTotal)}`,
+    earn: `${currency_icon ? "" : currencySymbol}${formatAmount(payoutTotal)}`,
     duration:
       offer?.expiry_days > 0
         ? `${offer.expiry_days} ${offer?.expiry_type === "hours" ? "Hours" : "Days"

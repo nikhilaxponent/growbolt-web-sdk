@@ -81,7 +81,19 @@ export default function OfferCard({
 
         <div className="text-12 text-gray-500 mb-2">{model.subtitle}</div>
 
-        <Button type="button" className="pill-earn" onClick={handleEarnClick}>
+        <Button
+          type="button"
+          className="pill-earn"
+          onClick={handleEarnClick}
+          style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "4px" }}
+        >
+          {model.currency_icon && (
+            <img
+              src={model.currency_icon}
+              alt="currency"
+              style={{ width: "17px", height: "17px", objectFit: "contain" }}
+            />
+          )}
           {model.earn}
         </Button>
 
@@ -165,7 +177,15 @@ export default function OfferCard({
         type="button"
         className="pill-earn earn-pill"
         onClick={handleEarnClick}
+        style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "4px" }}
       >
+        {model.currency_icon && (
+          <img
+            src={model.currency_icon}
+            alt="currency"
+            style={{ width: "10px", height: "10px", objectFit: "contain" }}
+          />
+        )}
         {model.earn}
       </button>
 

@@ -8,6 +8,7 @@ export interface OfferModel {
   device?: string;
   duration?: string;
   currency?: string;
+  currency_icon?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sections?: any[];
 }
