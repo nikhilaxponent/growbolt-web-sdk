@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Pills from "./components/Pills";
 import ProgressItem from "./components/ProgressItem";
-
+import emptyIcon from "./assets/empty.svg"
 type Props = {
   onBack?: () => void;
 };
@@ -18,10 +18,10 @@ export default function ProgressPage({ onBack }: Props) {
     setError(null);
     try {
       if (!window.GrowBolt) throw new Error("GrowBolt SDK not available");
-      
+
       const config = window.GrowBolt.config;
       const sub4 = config?.sub4 || config?.userId || window.GrowBolt.sessionId || "postman";
-      
+
       // Fetch conversions with "all" to get counts and items for all tabs.
       // Doing this on load makes switching tabs completely instant!
       const res = await window.GrowBolt.getOngoing({ sub4, tab: "all" });
@@ -68,10 +68,10 @@ export default function ProgressPage({ onBack }: Props) {
       label: `Completed (${counts.completed})`,
       count: counts.completed,
     },
-    { 
-      key: "failed", 
-      label: `Failed (${counts.failed})`, 
-      count: counts.failed 
+    {
+      key: "failed",
+      label: `Failed (${counts.failed})`,
+      count: counts.failed
     },
   ];
 
@@ -108,9 +108,11 @@ export default function ProgressPage({ onBack }: Props) {
 
       {!loading && !error && filtered.length === 0 && (
         <div className="gb-empty-container" style={{ padding: "60px 0", textAlign: "center", color: "#666" }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>📦</div>
-          <p style={{ fontWeight: 600, fontSize: 16, margin: 0 }}>No offers in this section yet</p>
-          <p style={{ fontSize: 13, color: "#999", marginTop: 4 }}>Completed offers will show up here once processed.</p>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>
+            <img src={emptyIcon} alt="Empty" width={40} height={40} />
+          </div>
+          <p style={{ fontWeight: 600, fontSize: 16, margin: 0 }}>Explore offer</p>
+          <p style={{ fontSize: 13, color: "#999", marginTop: 4 }}>Complete a new offer to start earning rewards</p>
         </div>
       )}
 
