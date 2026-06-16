@@ -127,8 +127,7 @@ export default function SDKDetailsPage({
           <img
             src={currency_icon}
             alt="currency"
-            className="h-8 w-8"
-            style={{ objectFit: "contain" }}
+            style={{ width: "10px", height: "10px", objectFit: "contain" }}
           />
         )}
         {formatAmount(totalReward)}
@@ -292,8 +291,7 @@ export default function SDKDetailsPage({
                                   <img
                                     src={payment.currency_icon}
                                     alt="currency"
-                                    className="h-5 w-5"
-                                    style={{ objectFit: "contain" }}
+                                    style={{ width: "10px", height: "10px", objectFit: "contain" }}
                                   />
                                 )}
                                 {formatAmount(payment.user_payout)}
