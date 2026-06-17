@@ -119,7 +119,6 @@ export default function SDKDetailsPage({
     details?.currency_icon ||
     details?.payments?.find((p: any) => p?.currency_icon)?.currency_icon ||
     "";
-  console.log(currency_icon, "currency_icon",);
 
   const detailsCurrency =
     details?.payout?.currency ||
