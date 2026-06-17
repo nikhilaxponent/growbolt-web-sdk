@@ -86,6 +86,12 @@ export default function SDKDetailsPage({
     };
   }, [open, offerId]);
 
+  const isValidIcon = (url: string | undefined | null) => {
+    if (!url) return false;
+    const cleaned = url.trim().toLowerCase();
+    return cleaned !== "" && cleaned !== "null" && cleaned !== "undefined" && cleaned !== "none";
+  };
+
   const formatAmount = (value: string | number | undefined) => {
     const num = Number(value || 0);
     return Number.isInteger(num) ? num.toString() : num.toFixed(3);
@@ -123,7 +129,7 @@ export default function SDKDetailsPage({
   const reward =
     totalReward > 0 ? (
       <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
-        {currency_icon && (
+        {isValidIcon(currency_icon) && (
           <img
             src={currency_icon}
             alt="currency"
@@ -287,7 +293,7 @@ export default function SDKDetailsPage({
                             description={payment?.description}
                             reward={
                               <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
-                                {payment.currency_icon && (
+                                {isValidIcon(payment.currency_icon) && (
                                   <img
                                     src={payment.currency_icon}
                                     alt="currency"

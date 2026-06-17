@@ -1,4 +1,5 @@
 import { APIError } from "../../types/errors";
+import { sdkState } from "../../core/state/sdkState";
 
 export interface ApiClientOptions {
   baseUrl?: string;
@@ -27,7 +28,16 @@ export class ApiClient {
   }
 
   async request(path: string, opts: RequestInit = {}, retries = 2): Promise<any> {
-    const url = this.buildUrl(path);
+    const sub4 = sdkState.config?.sub4;
+    let finalPath = path;
+    if (sub4) {
+      const hasSub4 = /[?&]sub4=/.test(path);
+      if (!hasSub4) {
+        const separator = path.includes("?") ? "&" : "?";
+        finalPath = `${path}${separator}sub4=${encodeURIComponent(sub4)}`;
+      }
+    }
+    const url = this.buildUrl(finalPath);
     const init: RequestInit = Object.assign({}, opts, {
       credentials: this.credentials,
       headers: Object.assign({}, this.headers, opts.headers || {}),

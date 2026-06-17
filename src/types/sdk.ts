@@ -9,6 +9,7 @@ export interface SDKConfig {
   baseUrl?: string;
   debug?: boolean;
   timeout?: number;
+  sub4?: string;
   [key: string]: any;
 }
 

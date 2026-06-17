@@ -10,6 +10,11 @@ type Props = {
 export default function ProgressPage({ onBack }: Props) {
   const [active, setActive] = useState<string>("progress");
   const [items, setItems] = useState<any[]>([]);
+  const [counts, setCounts] = useState<Record<string, number>>({
+    progress: 0,
+    completed: 0,
+    failed: 0,
+  });
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,13 +27,18 @@ export default function ProgressPage({ onBack }: Props) {
       const config = window.GrowBolt.config;
       const sub4 = config?.sub4 || config?.userId || window.GrowBolt.sessionId || "postman";
 
-      // Fetch conversions with "all" to get counts and items for all tabs.
-      // Doing this on load makes switching tabs completely instant!
-      const res = await window.GrowBolt.getOngoing({ sub4, tab: "all" });
+      const res = await window.GrowBolt.getOngoing({ sub4, tab: active });
       if (res && Array.isArray(res.items)) {
         setItems(res.items);
       } else {
         setItems([]);
+      }
+      if (res && res.counts) {
+        setCounts({
+          progress: res.counts.progress || 0,
+          completed: res.counts.completed || 0,
+          failed: res.counts.failed || 0,
+        });
       }
     } catch (err: any) {
       console.error("Failed to fetch ongoing offers", err);
@@ -36,26 +46,13 @@ export default function ProgressPage({ onBack }: Props) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [active]);
 
   useEffect(() => {
     fetchOngoing();
   }, [fetchOngoing]);
 
-  const counts = useMemo(() => {
-    const map: Record<string, number> = {
-      progress: 0,
-      completed: 0,
-      failed: 0,
-    };
-    items.forEach((it) => {
-      const s = (it as any).status || "progress";
-      if (typeof map[s] !== "undefined") {
-        map[s] = map[s] + 1;
-      }
-    });
-    return map;
-  }, [items]);
+  const filtered = items;
 
   const options = [
     {
@@ -74,8 +71,6 @@ export default function ProgressPage({ onBack }: Props) {
       count: counts.failed
     },
   ];
-
-  const filtered = items.filter((it) => (it as any).status === active);
 
   return (
     <div style={{ marginTop: 20 }}>

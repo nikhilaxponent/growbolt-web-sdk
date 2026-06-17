@@ -44,5 +44,12 @@ export function validateConfig(config: any): {
     errors.push("timeout must be a non-negative number");
   }
 
+  if (
+    config.sub4 !== undefined &&
+    (typeof config.sub4 !== "string" || config.sub4.trim().length === 0)
+  ) {
+    errors.push("sub4 must be a non-empty string");
+  }
+
   return { valid: errors.length === 0, errors };
 }

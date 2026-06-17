@@ -24,7 +24,7 @@ export default function PaymentMilestoneCard({
         className="instruction-card-inner"
         style={{ justifyContent: "space-between", alignItems: "flex-start" }}
       >
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ width: "calc(100% - 170px)", minWidth: 0 }}>
           <div
             className="payment-step"
             style={{
@@ -49,8 +49,13 @@ export default function PaymentMilestoneCard({
         </div>
 
         <div
-          className="right-col"
-          style={{ alignItems: "flex-end", minWidth: 130, gap: 10 }}
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: "12px",
+            flexShrink: 0,
+          }}
         >
           <img
             src={statusIcon || progressIcon}

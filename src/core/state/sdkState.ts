@@ -1,6 +1,7 @@
 export interface SDKConfig {
   apiKey: string;
   baseUrl?: string;
+  sub4?: string;
   [key: string]: any;
 }
 
