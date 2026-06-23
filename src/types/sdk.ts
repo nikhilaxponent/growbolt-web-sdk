@@ -69,9 +69,13 @@ export interface GrowBoltSDK {
     os?: string;
   }): Promise<any[]>;
   getOfferDetails(offerId: string): Promise<any>;
-  getOngoing(params: { sub4: string; tab: string }): Promise<any>;
+  getOngoing(params: { sub4?: string; tab: string }): Promise<any>;
   readonly sessionId: string | null;
   readonly config: SDKConfig | null;
+  identify(params: { sub4: string }): void;
+  reset(): void;
+  readonly user: { sub4?: string; [key: string]: any } | null;
+  readonly sub4: string | null;
 }
 
 export type SDKEventType =

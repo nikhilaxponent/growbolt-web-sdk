@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
+import React, { useState } from "react";
 import type { OfferModel } from "../types";
 import androidIcon from "../assets/android-green.svg";
 import iosIcon from "../assets/ios.png";
@@ -9,6 +9,7 @@ type Props = {
 };
 
 export default function ProgressItem({ item }: Props) {
+  const [imgError, setImgError] = useState(false);
   const status = (item as any).status || "progress";
   let amount = item.earn || "";
   if (!amount && (item as any).payout) {
@@ -18,18 +19,60 @@ export default function ProgressItem({ item }: Props) {
       amount = String((item as any).payout);
     }
   }
-  const device = (item as any).device || "";
+
+  // Find offer in current catalog to enrich information (device, name fallback, subtitle)
+  const catalogOffers = (window as any).GrowBolt ? (window as any).GrowBolt.getOffers() : [];
+  const catalogOffer = catalogOffers.find((o: any) => String(o.id) === String((item as any).offer_id || item.id));
+
+  const name = item.name || (item as any).title || catalogOffer?.name || "Offer";
+
+  let subtitle = item.subtitle || catalogOffer?.subtitle || "";
+  if (subtitle.length > 20) {
+    subtitle = subtitle.substring(0, 20) + "...";
+  }
+
+  const logo = item.logo || catalogOffer?.logo || "";
+
+  const rawDevice = (item as any).device || (item as any).os || catalogOffer?.device || catalogOffer?.deviceOs || "";
+  const deviceStr = String(rawDevice).toLowerCase();
+  const isAndroid = deviceStr.includes("android");
+  const isIos = deviceStr.includes("ios");
 
   return (
     <div
       className="list-item"
       style={{ position: "relative", alignItems: "center" }}
     >
-      {item.logo && <img src={item.logo} alt={item.name} className="logo" />}
+      {logo && !imgError ? (
+        <img
+          src={logo}
+          alt={name}
+          className="logo"
+          onError={() => setImgError(true)}
+        />
+      ) : (
+        <div
+          className="logo"
+          style={{
+            backgroundColor: "#000",
+            color: "#fff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontWeight: 700,
+            fontSize: "12px",
+            borderRadius: "6px",
+            minWidth: "64px",
+            minHeight: "64px",
+          }}
+        >
+          {name?.charAt(0)?.toUpperCase() || "G"}
+        </div>
+      )}
 
       <div className="meta">
-        <div className="title">{item.name}</div>
-        {item.subtitle && <div className="subtitle">{item.subtitle}</div>}
+        <div className="title">{name}</div>
+        {subtitle && <div className="subtitle">{subtitle}</div>}
 
         <div
           style={{
@@ -40,14 +83,14 @@ export default function ProgressItem({ item }: Props) {
           }}
         >
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            {device === "android" && (
+            {isAndroid && (
               <img
                 src={androidIcon}
                 alt="Android"
                 style={{ width: 18, height: 18 }}
               />
             )}
-            {device === "ios" && (
+            {isIos && (
               <img src={iosIcon} alt="iOS" style={{ width: 18, height: 18 }} />
             )}
           </div>
@@ -56,18 +99,17 @@ export default function ProgressItem({ item }: Props) {
 
       <div className="right-col">
         <span
-          className={`status-badge ${
-            status === "completed"
-              ? "status-completed"
-              : status === "failed"
-                ? "status-failed"
-                : "status-progress"
-          }`}
+          className={`status-badge ${status === "completed"
+            ? "status-completed"
+            : status === "failed"
+              ? "status-failed"
+              : "status-progress"
+            }`}
         >
           {status.toUpperCase()}
         </span>
 
-        <div style={{ fontSize: 20, fontWeight: 500 }} className="offer-reward">
+        <div style={{ fontSize: 16, fontWeight: 500 }} className="offer-reward">
           {amount}
         </div>
       </div>

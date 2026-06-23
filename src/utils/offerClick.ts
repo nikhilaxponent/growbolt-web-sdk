@@ -12,7 +12,7 @@ function buildAttributedUrl(rawUrl: string): string {
     const u = new URL(rawUrl);
     const config = window.GrowBolt?.config;
     const sub4 =
-      config?.sub4 || config?.userId || window.GrowBolt?.sessionId || "";
+      window.GrowBolt?.sub4 || config?.sub4 || config?.userId || window.GrowBolt?.sessionId || "";
 
     if (sub4) {
       u.searchParams.set("sub4", sub4);

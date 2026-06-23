@@ -17,6 +17,8 @@
       <button id="checkBtn" class="btn">Check SDK</button>
       <button id="initBtn" class="btn primary">Initialize SDK</button>
       <button id="destroyBtn" class="btn danger">Destroy SDK</button>
+      <button id="identifyBtn" class="btn primary" style="background-color: #059669;">Identify User</button>
+      <button id="resetBtn" class="btn danger" style="background-color: #b91c1c;">Reset User</button>
     </section>
 
     <section class="status-row">
@@ -29,7 +31,10 @@
     </section>
   </div>
 
-  <script>window.GROWBOLT_API_BASE_URL = "http://localhost";</script>
+  <script>
+    window.process = { env: { NODE_ENV: "production" } };
+    window.GROWBOLT_API_BASE_URL = "http://localhost";
+  </script>
   <!-- Load built SDK: try local playground copy first, then fall back to project dist -->
   <script>
     (function(){

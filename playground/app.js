@@ -2,6 +2,8 @@
   const checkBtn = document.getElementById('checkBtn');
   const initBtn = document.getElementById('initBtn');
   const destroyBtn = document.getElementById('destroyBtn');
+  const identifyBtn = document.getElementById('identifyBtn');
+  const resetBtn = document.getElementById('resetBtn');
   const detailBtn = document.getElementById('detailBtn');
   const progressTabs = document.querySelectorAll('.progress-tab');
   const statusEl = document.getElementById('status');
@@ -52,6 +54,8 @@
     checkBtn.disabled = false;
     initBtn.disabled = !present;
     destroyBtn.disabled = !present;
+    if (identifyBtn) identifyBtn.disabled = !present;
+    if (resetBtn) resetBtn.disabled = !present;
   }
 
   checkBtn.addEventListener('click', ()=>{
@@ -74,7 +78,7 @@
       if(typeof initFn !== 'function'){ appendLog('ERROR','GrowBolt.init is not a function'); return; }
       // Call init with proper context binding and test config
       const result = initFn.call(window.GrowBolt, {
-        apiKey: 'wS9D_bVsyVRRvoWaWVjqjgStPRkKMfLjfLmuBFUNWA0',
+        apiKey: 'PhWPLCNx9tTObd5kNU6HqxvsKk74n9kD8Haapvs7__4',
       });                                                       
       if(result && typeof result.then === 'function'){
         appendLog('INFO','init returned a Promise - waiting');
@@ -83,9 +87,9 @@
         const offers = window.GrowBolt.getOffers?.();
 appendLog('INFO', 'offers count:', offers?.length);
 appendLog('INFO', 'first offer:', offers?.[0]);
-        // call ongoing for demo (sub4 'postman', tab 'completed')
+        // call ongoing for demo (using dynamically stored/identified sub4, tab 'completed')
         try{
-          const ongoing = await window.GrowBolt.getOngoing({ sub4: 'postman', tab: 'completed' });
+          const ongoing = await window.GrowBolt.getOngoing({ tab: 'completed' });
           appendLog('INFO','getOngoing response:', ongoing);
         }catch(e){ appendLog('ERROR','getOngoing failed', e); }
       } else {
@@ -115,6 +119,32 @@ appendLog('INFO', 'first offer:', offers?.[0]);
     }catch(err){ appendLog('ERROR', err); console.error(err); setStatus('Destroy error'); }
   });
 
+  if (identifyBtn) {
+    identifyBtn.addEventListener('click', () => {
+      appendLog('ACTION', 'Identify clicked');
+      if(!isSDKPresent()){ appendLog('ERROR','SDK not loaded'); return; }
+      try {
+        window.GrowBolt.identify({ sub4: 'test_user2' });
+        appendLog('SUCCESS', 'GrowBolt.identify({ sub4: "test_user2" }) completed');
+      } catch(err) {
+        appendLog('ERROR', err);
+      }
+    });
+  }
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      appendLog('ACTION', 'Reset clicked');
+      if(!isSDKPresent()){ appendLog('ERROR','SDK not loaded'); return; }
+      try {
+        window.GrowBolt.reset();
+        appendLog('SUCCESS', 'GrowBolt.reset() completed');
+      } catch(err) {
+        appendLog('ERROR', err);
+      }
+    });
+  }
+
   // initial state
   appendLog('INFO','Playground loaded.');
   setStatus('Ready');
@@ -139,7 +169,7 @@ appendLog('INFO', 'first offer:', offers?.[0]);
         const tab = tabEl.dataset.tab || 'completed';
         appendLog('ACTION', `Fetching ongoing tab=${tab}`);
         try{
-          const res = await window.GrowBolt.getOngoing({ sub4: 'postman', tab });
+          const res = await window.GrowBolt.getOngoing({ tab });
           appendLog('SUCCESS', `ongoing ${tab}:`, res);
         }catch(e){ appendLog('ERROR','ongoing fetch failed', e); }
       });

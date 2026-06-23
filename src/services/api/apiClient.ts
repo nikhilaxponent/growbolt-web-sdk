@@ -28,7 +28,10 @@ export class ApiClient {
   }
 
   async request(path: string, opts: RequestInit = {}, retries = 2): Promise<any> {
-    const sub4 = sdkState.config?.sub4;
+    const sub4 = sdkState.user?.sub4 || sdkState.config?.sub4 || undefined;
+    const endpoint = path.split("?")[0];
+    console.log("[GrowBolt] API Request", { endpoint, sub4 });
+
     let finalPath = path;
     if (sub4) {
       const hasSub4 = /[?&]sub4=/.test(path);

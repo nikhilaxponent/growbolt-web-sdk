@@ -25,7 +25,7 @@ export default function ProgressPage({ onBack }: Props) {
       if (!window.GrowBolt) throw new Error("GrowBolt SDK not available");
 
       const config = window.GrowBolt.config;
-      const sub4 = config?.sub4 || config?.userId || window.GrowBolt.sessionId || "postman";
+      const sub4 = window.GrowBolt.sub4 || config?.sub4 || config?.userId || window.GrowBolt.sessionId || "postman";
 
       const res = await window.GrowBolt.getOngoing({ sub4, tab: active });
       if (res && Array.isArray(res.items)) {

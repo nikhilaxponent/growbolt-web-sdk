@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => {
   return {
   define: {
     __GROWBOLT_API_BASE_URL__: JSON.stringify(safeApiBase),
+    "process.env.NODE_ENV": JSON.stringify(mode),
   },
   build: {
     lib: {

@@ -7,6 +7,7 @@ import { sdkState } from "./state/sdkState";
 import { sessionState } from "./state/sessionState";
 import { logger } from "../services/logger/logger";
 import { assertInitialized, getSdkAuthHeaders } from "./api/auth";
+import storage from "../services/storage/storage";
 import type {
   InitResponse,
   SDKConfig,
@@ -27,10 +28,20 @@ export class SDK implements GrowBoltSDK {
       return this.initPromise;
     }
 
-    this.initPromise = initFn(config).catch((err) => {
-      this.initPromise = null;
-      throw err;
-    });
+    this.initPromise = initFn(config)
+      .then((res) => {
+        if (config?.sub4) {
+          console.warn(
+            "[GrowBolt] Deprecation Warning: Passing sub4 in init() is deprecated. Please use GrowBolt.identify({ sub4 }) instead.",
+          );
+          this.identify({ sub4: config.sub4 });
+        }
+        return res;
+      })
+      .catch((err) => {
+        this.initPromise = null;
+        throw err;
+      });
 
     return this.initPromise;
   }
@@ -48,7 +59,21 @@ export class SDK implements GrowBoltSDK {
       );
       return;
     }
-    widget.openOfferwall(opts);
+    const sub4 = sdkState.user?.sub4 || sdkState.config?.sub4 || null;
+    console.log("[GrowBolt] Opening offerwall", { sub4 });
+
+    let finalOpts = opts;
+    if (opts?.url && sub4) {
+      try {
+        const u = new URL(opts.url);
+        u.searchParams.set("sub4", sub4);
+        u.searchParams.set("subid4", sub4);
+        finalOpts = { ...opts, url: u.toString() };
+      } catch {
+        // ignore
+      }
+    }
+    widget.openOfferwall(finalOpts);
   }
 
   closeOfferwall(): void {
@@ -91,11 +116,39 @@ export class SDK implements GrowBoltSDK {
 
   // Get all offers loaded during initialization
   get offers(): any[] | null {
-    return sdkState.offers;
+    return this.getOffers();
   }
 
   getOffers(): any[] {
-    return sdkState.offers || [];
+    const offers = sdkState.offers || [];
+    const sub4 = sdkState.user?.sub4 || sdkState.config?.sub4;
+    if (!sub4) return offers;
+
+    const appendSub4 = (urlStr: string) => {
+      if (!urlStr) return urlStr;
+      try {
+        const u = new URL(urlStr);
+        u.searchParams.set("sub4", sub4);
+        u.searchParams.set("subid4", sub4);
+        return u.toString();
+      } catch {
+        return urlStr;
+      }
+    };
+
+    return offers.map((offer: any) => {
+      const updated = { ...offer };
+      if (updated.url) updated.url = appendSub4(updated.url);
+      if (updated.click_url) updated.click_url = appendSub4(updated.click_url);
+      if (updated.preview_url) updated.preview_url = appendSub4(updated.preview_url);
+      if (updated.raw) {
+        updated.raw = { ...updated.raw };
+        if (updated.raw.url) updated.raw.url = appendSub4(updated.raw.url);
+        if (updated.raw.click_url) updated.raw.click_url = appendSub4(updated.raw.click_url);
+        if (updated.raw.preview_url) updated.raw.preview_url = appendSub4(updated.raw.preview_url);
+      }
+      return updated;
+    });
   }
 
   async listOffers(options?: {
@@ -110,7 +163,7 @@ export class SDK implements GrowBoltSDK {
       options?.search || options?.category || options?.tag || options?.os;
 
     if (sdkState.offers && !options?.forceRefresh && !hasFilters) {
-      return sdkState.offers;
+      return this.getOffers();
     }
     const api: any = (sdkState as any).apiClient;
     if (!api) throw new Error("API client not available");
@@ -150,15 +203,16 @@ export class SDK implements GrowBoltSDK {
     if (!hasFilters) {
       sdkState.offers = offersList;
     }
-    return offersList;
+    return this.getOffers();
   }
 
   // Fetch ongoing items for a given sub4 and tab (completed|pending|failed)
-  async getOngoing(params: { sub4: string; tab: string }) {
+  async getOngoing(params: { sub4?: string; tab: string }) {
     assertInitialized();
     const api: any = (sdkState as any).apiClient;
     if (!api) throw new Error("API client not available");
-    const { sub4, tab } = params;
+    const sub4 = params.sub4 || sdkState.user?.sub4 || "";
+    const { tab } = params;
     const q = `?sub4=${encodeURIComponent(sub4)}&tab=${encodeURIComponent(tab)}`;
     const path = `/api/v1/sdk/ongoing/${q}`;
     return api.get(path, {
@@ -188,6 +242,37 @@ export class SDK implements GrowBoltSDK {
     return api.post(path, undefined, {
       headers: getSdkAuthHeaders(),
     });
+  }
+
+  identify(params: { sub4: string }): void {
+    if (!params || typeof params.sub4 !== "string" || params.sub4.trim().length === 0) {
+      throw new Error("GrowBolt.identify: sub4 must be a non-empty string");
+    }
+    const sub4 = params.sub4;
+    const user = { sub4 };
+    sdkState.user = user;
+    if (sdkState.config) {
+      sdkState.config.sub4 = sub4;
+    }
+    storage.storageSet("user", user);
+    console.log("[GrowBolt] User identified", { sub4 });
+  }
+
+  reset(): void {
+    sdkState.user = null;
+    if (sdkState.config) {
+      sdkState.config.sub4 = undefined;
+    }
+    storage.storageRemove("user");
+    console.log("[GrowBolt] User reset");
+  }
+
+  get user(): { sub4?: string; [key: string]: any } | null {
+    return sdkState.user;
+  }
+
+  get sub4(): string | null {
+    return sdkState.user?.sub4 || null;
   }
 
   get sessionId(): string | null {

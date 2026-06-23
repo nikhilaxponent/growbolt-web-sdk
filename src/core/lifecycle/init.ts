@@ -8,6 +8,7 @@ import { validateConfig } from "../../utils/validate";
 import { ENDPOINTS } from "../../services/api/endpoints";
 import { resolveApiBaseUrl } from "../../config/runtime";
 import { getSdkAuthHeaders } from "../api/auth";
+import storage from "../../services/storage/storage";
 import type { InitResponse, SDKConfig } from "../../types/sdk";
 
 export async function init(config?: Partial<SDKConfig>): Promise<InitResponse> {
@@ -116,6 +117,16 @@ export async function init(config?: Partial<SDKConfig>): Promise<InitResponse> {
       logger.warn("Offers processing failed", e);
     }
 
+    // Restore user from storage if available
+    const savedUser = storage.storageGet<{ sub4?: string }>("user");
+    if (savedUser && savedUser.sub4) {
+      sdkState.user = savedUser;
+      if (sdkState.config) {
+        sdkState.config.sub4 = savedUser.sub4;
+      }
+      console.log("[GrowBolt] User identified", { sub4: savedUser.sub4 });
+    }
+
     sdkState.initialized = true;
 
     emitter.emit("sdk_initialized", {
@@ -124,6 +135,7 @@ export async function init(config?: Partial<SDKConfig>): Promise<InitResponse> {
     });
 
     logger.info("SDK initialized successfully");
+    console.log("[GrowBolt] Initialized", { apiKey: config.apiKey });
     return {
       ok: true,
       session,

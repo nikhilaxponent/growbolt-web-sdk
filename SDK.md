@@ -21,7 +21,7 @@ GrowBolt is a lightweight, production-grade Web SDK for publishers integrating m
 Include the SDK in your HTML file:
 
 ```html
-<script src="https://cdn.growbolt.com/sdk.js"></script>
+<script src="https://sdk.growbolt.ai/sdk.js"></script>
 ```
 
 The SDK automatically exposes itself on `window.GrowBolt`.
@@ -465,7 +465,7 @@ When handling SDK requests, your backend should:
   <button id="earnBtn">Watch Ads & Earn</button>
   <div id="status"></div>
 
-  <script src="https://cdn.growbolt.com/sdk.js"></script>
+  <script src="https://sdk.growbolt.ai/sdk.js"></script>
   <script>
     const statusEl = document.getElementById('status');
     
