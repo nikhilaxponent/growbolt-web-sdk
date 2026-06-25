@@ -183,7 +183,7 @@ export default function OfferCard({
           <img
             src={model.currency_icon}
             alt="currency"
-            style={{ width: "10px", height: "10px", objectFit: "contain" }}
+            style={{ width: "20px", height: "20px", objectFit: "contain" }}
           />
         )}
         {model.earn}

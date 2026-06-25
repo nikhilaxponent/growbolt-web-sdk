@@ -98,14 +98,14 @@ export default function ClaimLinkModal({
         </div>
 
         <div className="gb-claim-actions">
-          <a
+          {/* <a
             href={url}
             target="_blank"
             rel="noopener noreferrer"
             className="gb-claim-open-link"
           >
             Open Link
-          </a>
+          </a> */}
           <button type="button" className="gb-claim-cancel" onClick={onClose}>
             Cancel
           </button>

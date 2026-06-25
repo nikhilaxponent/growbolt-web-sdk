@@ -511,7 +511,11 @@
 }
 
 .cta-text {
-  font-size: 18px
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .gb-offer-card {
