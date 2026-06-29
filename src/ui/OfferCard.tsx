@@ -136,25 +136,47 @@ export default function OfferCard({
       )}
 
       <div className="meta">
-        <div className="title-row">
-          <div className="title">{model.name}</div>
+        <div className="title-row" style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", gap: "8px" }}>
+          <div className="title" style={{ whiteSpace: "normal" }}>{model.name}</div>
+          
+          {(model as any).duration && (
+            <div className="hide-on-mobile" style={{ display: "flex", alignItems: "center", background: "#f59e0b", color: "#fff", fontSize: "11px", fontWeight: "600", padding: "2px 6px", borderRadius: "12px", flexShrink: 0 }}>
+              <img
+                src={clockIcon}
+                alt="time"
+                style={{
+                  width: 12,
+                  height: 12,
+                  marginRight: 4,
+                  filter: "brightness(0) invert(1)"
+                }}
+              />
+              {(model as any).duration || "3 Hrs"}
+            </div>
+          )}
+        </div>
 
-          <span className="pill-timer" style={{ marginLeft: 6, color: "#fff" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap", marginTop: "4px" }}>
+          {model.subtitle && <div className="subtitle" style={{ whiteSpace: "normal" }}>{model.subtitle}</div>}
+          
+          {(model.subtitle && (model as any).duration) && (
+            <span className="hide-on-desktop" style={{ color: "#6b7280", fontSize: "13px" }}>&bull;</span>
+          )}
+
+          <div className="hide-on-desktop" style={{ display: "flex", alignItems: "center", color: "#10b981", fontSize: "12px", fontWeight: "600" }}>
             <img
               src={clockIcon}
               alt="time"
               style={{
                 width: 14,
                 height: 14,
-                verticalAlign: "middle",
-                marginRight: 6,
+                marginRight: 4,
+                filter: "brightness(0) saturate(100%) invert(60%) sepia(50%) saturate(500%) hue-rotate(110deg) brightness(95%) contrast(90%)"
               }}
             />
             {(model as any).duration || "3 Hrs"}
-          </span>
+          </div>
         </div>
-
-        {model.subtitle && <div className="subtitle">{model.subtitle}</div>}
 
         <div style={{ marginTop: 8 }}>
           {((model as any).device === "android" ||

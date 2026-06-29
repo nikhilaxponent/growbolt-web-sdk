@@ -123,10 +123,21 @@
   justify-content: center
 }
 
+.mobile-offer-status {
+  display: none;
+}
+
+@media (min-width: 641px) {
+  .hide-on-desktop {
+    display: none !important;
+  }
+}
+
 @media(max-width:640px) {
   .gb-modal-action-pill {
     padding: 8px 12px;
-    gap: 8px
+    gap: 8px;
+    display: none !important;
   }
 
   .gb-modal-action-pill .pill-text {
@@ -142,7 +153,68 @@
     width: 22px;
     height: 22px
   }
+
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  .mobile-offer-status {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1.5px solid #10b981;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 0 0 20px 0;
+    box-shadow: 0 4px 0 #10b981;
+    cursor: pointer;
+    text-align: left;
+    gap: 16px;
+    transition: transform 0.1s;
+  }
+
+  .mobile-offer-status:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #10b981;
+  }
+
+  .mobile-offer-status-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .mobile-offer-status-icon img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .mobile-offer-status-content {
+    flex: 1;
+  }
+
+  .mobile-offer-status-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 2px;
+  }
+
+  .mobile-offer-status-sub {
+    font-size: 14px;
+    color: #475569;
+  }
+
+  .mobile-offer-status-arrow {
+    color: #10b981;
+    display: flex;
+    align-items: center;
+  }
 }
+
 
 .gb-modal-body {
   padding: 20px 24px;
@@ -316,7 +388,7 @@
   max-width: 980px;
   margin: 0 auto;
   padding: 28px 20px;
-  padding-bottom: 100px
+  padding-bottom: 20px;
 }
 
 .sdk-overlap-wrapper {
@@ -485,16 +557,11 @@
 }
 
 .sticky-cta-wrap {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 20px;
-  width: calc(100% - 64px);
-  max-width: 920px;
+  position: static;
+  margin-top: 16px;
+  width: 100%;
   display: flex;
   justify-content: center;
-  padding: 4px;
-  pointer-events: none
 }
 
 .sticky-cta {
@@ -652,7 +719,7 @@
 /* Ensure single-column on small screens so All Offers remains readable */
 @media (max-width: 480px) {
   .gb-list-grid {
-    grid-template-columns: 4fr;
+    grid-template-columns: 1fr;
     gap: 12px
   }
 }
@@ -1119,16 +1186,13 @@
 
   .offer-header-title {
     font-size: 18px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis
+    white-space: normal;
   }
 
   .offer-header-sub {
     font-size: 13px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis
+    white-space: normal;
+    margin-top: 8px;
   }
 
   .offer-header-right {
@@ -1195,17 +1259,13 @@
   .list-item .title {
     font-size: 16px;
     font-weight: 800;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis
+    white-space: normal;
   }
 
   .list-item .subtitle {
     font-size: 13px;
     color: #6b7280;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis
+    white-space: normal;
   }
 
   .list-item .earn-pill {
@@ -1223,34 +1283,22 @@
     height: 6.25rem
   }
 
-  /* CTA fixed to bottom on mobile for easy reach */
-  .sticky-cta-wrap {
-    position: fixed;
-    left: 12px;
-    right: 12px;
-    bottom: 12px;
-    width: auto;
-    max-width: none;
-    transform: none
-  }
 
-  .sticky-cta {
-    max-width: none
-  }
 
-  /* Keep modals centered on small screens for better UX */
+  /* Make modals full screen on small screens for better UX */
   .gb-modal-backdrop {
-    padding: 12px;
-    align-items: center;
+    padding: 0;
+    align-items: flex-end;
     justify-content: center;
   }
 
   .gb-modal {
-    width: calc(100vw - 24px);
+    width: 100vw;
+    height: 100vh;
     max-width: 100%;
-    max-height: calc(95vh - 16px);
-    margin: 0 auto;
-    border-radius: 20px;
+    max-height: 100vh;
+    margin: 0;
+    border-radius: 0;
     display: flex;
     flex-direction: column;
     overflow: hidden;

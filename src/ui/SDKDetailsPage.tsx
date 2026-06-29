@@ -365,15 +365,15 @@ export default function SDKDetailsPage({
                 )}
               </section>
             )}
-          </div>
 
-          {!loading && (
-            <Suspense fallback={null}>
-              <StickyCTA onClick={handleCTAClick}>
-                <span className="cta-text">Claim {reward}</span>
-              </StickyCTA>
-            </Suspense>
-          )}
+            {!loading && (
+              <Suspense fallback={null}>
+                <StickyCTA onClick={handleCTAClick}>
+                  <span className="cta-text">Claim {reward}</span>
+                </StickyCTA>
+              </Suspense>
+            )}
+          </div>
         </div>
       </Modal>
 

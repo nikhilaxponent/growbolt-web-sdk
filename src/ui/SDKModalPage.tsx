@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useMemo, useState, Suspense, useEffect } from "react";
+import type { OfferModel } from "./types";
+import statusIcon from "./assets/status.svg";
 import { mapApiOfferToModel } from "./mapOffer";
+
 const Modal = React.lazy(() => import("./Modal"));
 const OfferList = React.lazy(() => import("./OfferList"));
 const SDKFilterBar = React.lazy(() => import("./components/SDKFilterBar"));
 const ProgressPage = React.lazy(() => import("./ProgressPage"));
-import type { OfferModel } from "./types";
 
 type Props = {
   open: boolean;
@@ -145,6 +147,21 @@ export default function SDKModalPage({
           </Suspense>
         ) : (
           <>
+            <div className="mobile-offer-status" onClick={() => setShowStatus(true)}>
+              <div className="mobile-offer-status-icon">
+                <img src={statusIcon} alt="status" />
+              </div>
+              <div className="mobile-offer-status-content">
+                <div className="mobile-offer-status-title">Offer Status</div>
+                <div className="mobile-offer-status-sub">Tap to view your offer status</div>
+              </div>
+              <div className="mobile-offer-status-arrow">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+            </div>
+
             <div className="sdk-modal-section">
               <Suspense fallback={null}>
                 <SDKFilterBar
@@ -167,18 +184,20 @@ export default function SDKModalPage({
                 </p>
               )}
 
-              <h3 className="sdk-section-title">Trending Offers</h3>
-              <Suspense fallback={null}>
-                <OfferList
-                  items={trending}
-                  layout="compact-scroll"
-                  onItemClick={onItemClick}
-                />
-              </Suspense>
+              <div className="hide-on-mobile">
+                <h3 className="sdk-section-title">Trending Offers</h3>
+                <Suspense fallback={null}>
+                  <OfferList
+                    items={trending}
+                    layout="compact-scroll"
+                    onItemClick={onItemClick}
+                  />
+                </Suspense>
+              </div>
             </div>
 
             <div className="sdk-modal-section">
-              <h3 className="sdk-section-title">All Offers</h3>
+              <h3 className="sdk-section-title hide-on-mobile">All Offers</h3>
               <Suspense fallback={null}>
                 <OfferList
                   items={filtered}
