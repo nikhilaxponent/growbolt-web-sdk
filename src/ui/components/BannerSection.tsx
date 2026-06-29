@@ -17,3 +17,4 @@ export default function BannerSection({ image, children }: Props) {
     </div>
   );
 }
+

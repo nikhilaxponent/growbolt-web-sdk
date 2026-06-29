@@ -19,61 +19,71 @@ export default function PaymentMilestoneCard({
   onClaim,
 }: Props) {
   return (
-    <div className="instruction-card rounded-xl shadow-card">
+    <div className="instruction-card rounded-xl shadow-card" style={{ padding: "16px", background: "#fff" }}>
       <div
         className="instruction-card-inner"
-        style={{ justifyContent: "space-between", alignItems: "flex-start" }}
+        style={{ display: "flex", flexDirection: "column", gap: "4px", alignItems: "stretch" }}
       >
-        <div style={{ width: "calc(100% - 170px)", minWidth: 0 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
           <div
             className="payment-step"
             style={{
               display: "flex",
               alignItems: "center",
               gap: "8px",
-              fontSize: "20px",
-              fontWeight: 500,
+              fontSize: "18px",
+              fontWeight: 700,
               color: "#0f172a",
             }}
           >
-            Step {step}:{" "}
-            <RichContent value={title} className="payment-title" as="div" />
+            {title ? (
+              <RichContent value={title} className="payment-title" as="div" />
+            ) : (
+              `Step ${step}`
+            )}
           </div>
-          {description ? (
+
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: "8px",
+              flexShrink: 0,
+            }}
+          >
+            <img
+              src={statusIcon || progressIcon}
+              alt="status"
+              style={{ width: 24, height: 24 }}
+            />
+            <button
+              type="button"
+              className="earn-pill"
+              onClick={onClaim}
+              style={{
+                whiteSpace: "nowrap",
+                cursor: onClaim ? "pointer" : "default",
+                padding: "6px 8px",
+                width: "auto",
+                minWidth: "60px",
+                fontSize: "14px"
+              }}
+            >
+              {reward}
+            </button>
+          </div>
+        </div>
+
+        {description ? (
+          <div style={{ width: "100%" }}>
             <RichContent
               value={description}
               className="payment-description"
               as="div"
             />
-          ) : null}
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            gap: "12px",
-            flexShrink: 0,
-          }}
-        >
-          <img
-            src={statusIcon || progressIcon}
-            alt="status"
-            style={{ width: 28, height: 28 }}
-          />
-          <button
-            type="button"
-            className="earn-pill"
-            onClick={onClaim}
-            style={{
-              whiteSpace: "nowrap",
-              cursor: onClaim ? "pointer" : "default",
-            }}
-          >
-            {reward}
-          </button>
-        </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );

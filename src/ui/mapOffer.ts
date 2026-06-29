@@ -1,9 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { toPlainText } from "../utils/sanitizeContent";
 
-export function formatAmount(value: string | number | undefined) {
+export function formatAmount(value: string | number | undefined): string {
   const num = Number(value || 0);
-  return Number.isInteger(num) ? num.toString() : num.toFixed(3);
+  if (Number.isNaN(num)) return "0";
+  if (Math.abs(num) >= 1000) {
+    const formatted = (num / 1000).toFixed(1).replace(/\.0$/, "");
+    return `${formatted}k`;
+  }
+  if (num >= 100) {
+    return `${(num / 1000).toFixed(1).replace(/\.0$/, "")}k`;
+  }
+  return Number.isInteger(num) ? num.toString() : num.toFixed(1);
 }
 
 export function getCurrencySymbol(currencyStr: string | undefined): string {
