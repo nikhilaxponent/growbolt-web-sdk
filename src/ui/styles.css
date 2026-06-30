@@ -1393,8 +1393,20 @@
     font-size: 22px
   }
 
-  .gb-compact-item {
-    /* flex: 0 0 40% */
+  /* Make All Offers 2 columns on tablet as requested */
+  .gb-list-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Fix Trending Offers images being cut off (make them square instead of wide rectangles) */
+  .gb-offer-card.compact {
+    width: 160px;
+  }
+  
+  .gb-offer-card.compact img {
+    height: 160px;
+    object-fit: contain;
+    background: #f8fafc;
   }
 }
 

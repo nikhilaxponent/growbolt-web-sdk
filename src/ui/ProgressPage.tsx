@@ -111,15 +111,16 @@ export default function ProgressPage({ onBack }: Props) {
             onClick={onBack}
             style={{
               fontWeight: 600,
-              fontSize: 22,
+              fontSize: 20,
               margin: "0 auto",
               width: "200px",
               cursor: "pointer",
+              marginBottom: "10px"
             }}
           >
             Explore offer
           </div>
-          <p style={{ fontSize: 18, color: "#999", marginTop: 4 }}>Complete a new offer to start earning rewards</p>
+          <p style={{ fontSize: 16, color: "#999", marginTop: 4 }}>Complete a new offer to start earning rewards</p>
         </div>
       )}
 
