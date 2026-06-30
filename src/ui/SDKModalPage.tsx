@@ -25,7 +25,7 @@ export default function SDKModalPage({
   onItemClick,
 }: Props) {
   const [showStatus, setShowStatus] = useState(false);
-  const [category, setCategory] = useState<"all" | "apps" | "games">("all");
+  const [category, setCategory] = useState<string>("all");
   const [query, setQuery] = useState<string>("");
   const [device, setDevice] = useState<string>("");
   const [payout, setPayout] = useState<string>("");

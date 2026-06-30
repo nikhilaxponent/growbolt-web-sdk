@@ -40,7 +40,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px;
+  padding: 16px 20px;
   border-bottom: 1px solid #f3f4f6
 }
 
@@ -164,7 +164,7 @@
     background: #fff;
     border: 1.5px solid #10b981;
     border-radius: 12px;
-    padding: 16px;
+    padding: 6px;
     margin: 0 0 20px 0;
     box-shadow: 0 4px 0 #10b981;
     cursor: pointer;
@@ -197,14 +197,14 @@
   }
 
   .mobile-offer-status-title {
-    font-size: 18px;
-    font-weight: 800;
+    font-size: 14px;
+    font-weight: 600;
     color: #0f172a;
     margin-bottom: 2px;
   }
 
   .mobile-offer-status-sub {
-    font-size: 14px;
+    font-size: 10px;
     color: #475569;
   }
 
@@ -217,7 +217,7 @@
 
 
 .gb-modal-body {
-  padding: 20px 24px;
+  padding: 5px 12px;
   overflow: auto
 }
 
@@ -1241,37 +1241,54 @@
     flex-direction: row;
     align-items: center;
     gap: 12px;
-    justify-content: space-between
+    justify-content: space-between;
+    padding: 12px 14px;
+    min-height: auto;
   }
 
   .list-item .logo {
     width: 56px;
     height: 56px;
-    flex: 0 0 56px
+    flex: 0 0 56px;
+    border-radius: 12px;
   }
 
   .list-item .meta {
     flex: 1;
     min-width: 0;
-    margin: 0 12px
+    margin: 0;
   }
 
   .list-item .title {
     font-size: 16px;
-    font-weight: 800;
+    font-weight: 700;
     white-space: normal;
   }
 
   .list-item .subtitle {
-    font-size: 13px;
+    font-size: 12px;
     color: #6b7280;
-    white-space: normal;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .list-item .earn-pill {
-    flex: 0 0 90px;
-    width: 90px;
-    margin-left: auto
+    flex: 0 0 auto;
+    width: auto;
+    margin-left: auto;
+    padding: 6px 12px;
+    font-size: 13px;
+    border-radius: 8px;
+  }
+
+  .list-item .earn-pill img {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  .platform-icons {
+    display: none !important;
   }
 
   /* scale the utility image sizes down on small screens */
@@ -1409,6 +1426,14 @@
   border: 1px solid transparent
 }
 
+.desktop-categories {
+  display: flex;
+}
+
+.mobile-categories {
+  display: none;
+}
+
 .pill-inactive {
   background: #ecfdf5;
   color: #065f46;
@@ -1419,6 +1444,49 @@
   background: #059669;
   color: #fff;
   border-color: transparent
+}
+
+@media (max-width: 768px) {
+  .desktop-categories {
+    display: none !important;
+  }
+
+  .mobile-categories {
+    display: flex !important;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .mobile-categories::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mobile-categories .pill {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+    white-space: nowrap;
+  }
+
+  .mobile-categories .pill-inactive {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    color: #334155;
+  }
+
+  .mobile-categories .pill-active {
+    background: #16c784;
+    border-color: #16c784;
+    color: #ffffff;
+  }
+
+  .filter-search,
+  .filter-dropdowns {
+    display: none !important;
+  }
 }
 
 .pill-icon {

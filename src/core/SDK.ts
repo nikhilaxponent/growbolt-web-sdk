@@ -206,6 +206,32 @@ export class SDK implements GrowBoltSDK {
     return this.getOffers();
   }
 
+  async listCategories(options?: { forceRefresh?: boolean }): Promise<any[]> {
+    assertInitialized();
+    const api: any = (sdkState as any).apiClient;
+    if (!api) throw new Error("API client not available");
+
+    // Using a simplified cache check here. A fuller implementation could use sdkState.categories
+    // but ephemeral fetches are also fine if we just want it dynamic.
+    const path = `/api/v1/sdk/offers/categories/`;
+    const resp = await api.get(path, {
+      headers: getSdkAuthHeaders(),
+    });
+
+    let categoriesList: any[] = [];
+    if (resp && Array.isArray(resp.categories)) {
+      categoriesList = resp.categories;
+    } else if (Array.isArray(resp)) {
+      categoriesList = resp;
+    }
+
+    return categoriesList.map((item: any) => ({
+      id: String(item.id),
+      title: item.title || "",
+      count: Number(item.count) || 0,
+    }));
+  }
+
   // Fetch ongoing items for a given sub4 and tab (completed|pending|failed)
   async getOngoing(params: { sub4?: string; tab: string }) {
     assertInitialized();
@@ -267,7 +293,7 @@ export class SDK implements GrowBoltSDK {
     console.log("[GrowBolt] User reset");
   }
 
-  get user(): { sub4?: string; [key: string]: any } | null {
+  get user(): { sub4?: string;[key: string]: any } | null {
     return sdkState.user;
   }
 

@@ -105,7 +105,7 @@ export default function SDKDetailsPage({
 
   const title =
     toPlainText(details?.title) || fallbackOffer?.name || "Offer Details";
-  const subtitle = details?.description || fallbackOffer?.subtitle || "";
+  const subtitle = details?.description_lang || details?.description || fallbackOffer?.subtitle || "";
   const logo =
     details?.logo || details?.logo_source || fallbackOffer?.logo || "";
   const bannerImage = (() => {

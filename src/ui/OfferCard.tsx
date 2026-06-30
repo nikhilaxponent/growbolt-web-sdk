@@ -156,21 +156,21 @@ export default function OfferCard({
           )}
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap", marginTop: "4px" }}>
-          {model.subtitle && <div className="subtitle" style={{ whiteSpace: "normal" }}>{model.subtitle}</div>}
+        <div className="subtitle-expiry-row" style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "4px", flexWrap: "nowrap", overflow: "hidden" }}>
+          {model.subtitle && <div className="subtitle" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{model.subtitle}</div>}
           
           {(model.subtitle && (model as any).duration) && (
-            <span className="hide-on-desktop" style={{ color: "#6b7280", fontSize: "13px" }}>&bull;</span>
+            <span className="hide-on-desktop" style={{ color: "#6b7280", fontSize: "11px", flexShrink: 0 }}>&bull;</span>
           )}
 
-          <div className="hide-on-desktop" style={{ display: "flex", alignItems: "center", color: "#10b981", fontSize: "12px", fontWeight: "600" }}>
+          <div className="hide-on-desktop" style={{ display: "flex", alignItems: "center", color: "#10b981", fontSize: "11px", fontWeight: "600", flexShrink: 0 }}>
             <img
               src={clockIcon}
               alt="time"
               style={{
-                width: 14,
-                height: 14,
-                marginRight: 4,
+                width: 12,
+                height: 12,
+                marginRight: 2,
                 filter: "brightness(0) saturate(100%) invert(60%) sepia(50%) saturate(500%) hue-rotate(110deg) brightness(95%) contrast(90%)"
               }}
             />
@@ -178,7 +178,7 @@ export default function OfferCard({
           </div>
         </div>
 
-        <div style={{ marginTop: 8 }}>
+        <div className="platform-icons" style={{ marginTop: 8 }}>
           {((model as any).device === "android" ||
             (model as any).device === "Android") && (
               <img

@@ -58,10 +58,8 @@ export function mapApiOfferToModel(offer: any) {
     id: String(offer.id),
     name: title.length > 20 ? `${title.substring(0, 20)}...` : title,
     subtitle: toPlainText(
-      offer.payout?.title ||
-      offer.payments?.[0]?.title ||
-      offer.description ||
-      "Complete offer and earn rewards",
+      offer.description_lang ||
+      "Complete It",
     ),
     currency: rawCurrency,
     currency_icon,

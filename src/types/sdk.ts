@@ -68,6 +68,9 @@ export interface GrowBoltSDK {
     tag?: string;
     os?: string;
   }): Promise<any[]>;
+  listCategories(options?: {
+    forceRefresh?: boolean;
+  }): Promise<any[]>;
   getOfferDetails(offerId: string): Promise<any>;
   getOngoing(params: { sub4?: string; tab: string }): Promise<any>;
   readonly sessionId: string | null;

@@ -33,9 +33,14 @@ export async function resolveTrackedOfferUrl(
     return null;
   }
 
-  const redeemResponse = await window.GrowBolt.redeemOffer(
-    String(params.offerId),
-  );
+  let redeemResponse: any = null;
+  try {
+    redeemResponse = await window.GrowBolt.redeemOffer(
+      String(params.offerId),
+    );
+  } catch (err) {
+    console.warn("redeemOffer API failed, falling back to static URL", err);
+  }
 
   const targetUrl =
     redeemResponse?.url ||
