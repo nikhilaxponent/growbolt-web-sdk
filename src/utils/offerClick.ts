@@ -1,3 +1,5 @@
+import type { SDKService } from '../types/service';
+
 export type ResolveTrackedOfferUrlParams = {
   offerId: string;
   title: string;
@@ -5,20 +7,21 @@ export type ResolveTrackedOfferUrlParams = {
   fallbackPreviewUrl?: string;
 };
 
-function buildAttributedUrl(rawUrl: string): string {
-  if (!rawUrl) return "";
-
+function buildAttributedUrl(rawUrl: string, sdk: SDKService): string {
+  if (!rawUrl) return '';
   try {
     const u = new URL(rawUrl);
-    const config = window.GrowBolt?.config;
+    const config = sdk.config;
     const sub4 =
-      window.GrowBolt?.sub4 || config?.sub4 || config?.userId || window.GrowBolt?.sessionId || "";
-
+      sdk.sub4 ||
+      config?.sub4 ||
+      (config as Record<string, unknown>)?.userId as string | undefined ||
+      sdk.sessionId ||
+      '';
     if (sub4) {
-      u.searchParams.set("sub4", sub4);
-      u.searchParams.set("subid4", sub4);
+      u.searchParams.set('sub4', sub4);
+      u.searchParams.set('subid4', sub4);
     }
-
     return u.toString();
   } catch {
     return rawUrl;
@@ -27,35 +30,27 @@ function buildAttributedUrl(rawUrl: string): string {
 
 export async function resolveTrackedOfferUrl(
   params: ResolveTrackedOfferUrlParams,
+  sdk: SDKService,
 ): Promise<string | null> {
-  if (!window.GrowBolt?.redeemOffer) {
-    console.error("redeemOffer method not found on GrowBolt");
-    return null;
-  }
-
-  let redeemResponse: any = null;
+  let redeemResponse: Record<string, unknown> | null = null;
   try {
-    redeemResponse = await window.GrowBolt.redeemOffer(
-      String(params.offerId),
-    );
+    redeemResponse = (await sdk.redeemOffer(String(params.offerId))) as Record<string, unknown>;
   } catch (err) {
-    console.warn("redeemOffer API failed, falling back to static URL", err);
+    console.warn('redeemOffer API failed, falling back to static URL', err);
   }
 
   const targetUrl =
-    redeemResponse?.url ||
-    redeemResponse?.click_url ||
+    (redeemResponse?.url as string | undefined) ||
+    (redeemResponse?.click_url as string | undefined) ||
     params.fallbackUrl ||
     params.fallbackPreviewUrl ||
-    "";
+    '';
 
-  if (!targetUrl) {
-    return null;
-  }
+  if (!targetUrl) return null;
 
-  const attributedUrl = buildAttributedUrl(targetUrl);
+  const attributedUrl = buildAttributedUrl(targetUrl, sdk);
 
-  window.GrowBolt?.emit("offer_click", {
+  sdk.emit('offer_click', {
     offerId: params.offerId,
     title: params.title,
     url: attributedUrl,

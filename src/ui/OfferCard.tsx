@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import type { OfferModel } from "./types";
 import { resolveTrackedOfferUrl } from "../utils/offerClick";
+import { useSDK } from "./hooks/useSDK";
 import ClaimLinkModal from "./components/ClaimLinkModal";
 import androidIcon from "./assets/android-green.svg";
 import iosIcon from "./assets/ios.png";
@@ -34,6 +35,7 @@ export default function OfferCard({
   variant = "regular",
   onClick,
 }: Props) {
+  const sdk = useSDK();
   const [imgError, setImgError] = useState(false);
   const [claimUrl, setClaimUrl] = useState("");
   const [claimModalOpen, setClaimModalOpen] = useState(false);
@@ -45,10 +47,10 @@ export default function OfferCard({
   ) => {
     event.stopPropagation();
 
-    const trackedUrl = await resolveTrackedOfferUrl({
-      offerId: model.id,
-      title: model.name,
-    });
+    const trackedUrl = await resolveTrackedOfferUrl(
+      { offerId: model.id, title: model.name },
+      sdk,
+    );
 
     if (trackedUrl) {
       setClaimUrl(trackedUrl);

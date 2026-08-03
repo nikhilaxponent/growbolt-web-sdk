@@ -66,14 +66,14 @@ export class SDK implements GrowBoltSDK {
     if (opts?.url && sub4) {
       try {
         const u = new URL(opts.url);
-        u.searchParams.set("sub4", sub4);
-        u.searchParams.set("subid4", sub4);
+        u.searchParams.set("sub4", String(sub4));
+        u.searchParams.set("subid4", String(sub4));
         finalOpts = { ...opts, url: u.toString() };
       } catch {
-        // ignore
+        // ignore malformed URLs
       }
     }
-    widget.openOfferwall(finalOpts);
+    widget.openOfferwall(finalOpts, this);
   }
 
   closeOfferwall(): void {
@@ -96,7 +96,6 @@ export class SDK implements GrowBoltSDK {
     if (this.initPromise) {
       return this.initPromise;
     }
-    // wait for sdk_initialized event
     return new Promise((resolve, reject) => {
       const unsubscribe = this.on("sdk_initialized", (payload: any) => {
         unsubscribe();
@@ -106,7 +105,6 @@ export class SDK implements GrowBoltSDK {
           publisherConfig: payload.publisherConfig,
         });
       });
-      // timeout after 30s
       setTimeout(() => {
         unsubscribe();
         reject(new Error("SDK ready timeout"));
@@ -114,7 +112,6 @@ export class SDK implements GrowBoltSDK {
     });
   }
 
-  // Get all offers loaded during initialization
   get offers(): any[] | null {
     return this.getOffers();
   }
@@ -122,21 +119,21 @@ export class SDK implements GrowBoltSDK {
   getOffers(): any[] {
     const offers = sdkState.offers || [];
     const sub4 = sdkState.user?.sub4 || sdkState.config?.sub4;
-    if (!sub4) return offers;
+    if (!sub4) return offers as any[];
 
     const appendSub4 = (urlStr: string) => {
       if (!urlStr) return urlStr;
       try {
         const u = new URL(urlStr);
-        u.searchParams.set("sub4", sub4);
-        u.searchParams.set("subid4", sub4);
+        u.searchParams.set("sub4", String(sub4));
+        u.searchParams.set("subid4", String(sub4));
         return u.toString();
       } catch {
         return urlStr;
       }
     };
 
-    return offers.map((offer: any) => {
+    return (offers as any[]).map((offer: any) => {
       const updated = { ...offer };
       if (updated.url) updated.url = appendSub4(updated.url);
       if (updated.click_url) updated.click_url = appendSub4(updated.click_url);
@@ -165,32 +162,20 @@ export class SDK implements GrowBoltSDK {
     if (sdkState.offers && !options?.forceRefresh && !hasFilters) {
       return this.getOffers();
     }
-    const api: any = (sdkState as any).apiClient;
+
+    const api = sdkState.apiClient;
     if (!api) throw new Error("API client not available");
+
     const params = new URLSearchParams();
-
-    if (options?.search) {
-      params.append("search", options.search);
-    }
-
-    if (options?.category) {
-      params.append("category", options.category);
-    }
-
-    if (options?.tag) {
-      params.append("tag", options.tag);
-    }
-
-    if (options?.os) {
-      params.append("os", options.os);
-    }
+    if (options?.search) params.append("search", options.search);
+    if (options?.category) params.append("category", options.category);
+    if (options?.tag) params.append("tag", options.tag);
+    if (options?.os) params.append("os", options.os);
 
     const query = params.toString();
-
     const path = query ? `/api/v1/sdk/offers/?${query}` : "/api/v1/sdk/offers/";
-    const resp = await api.get(path, {
-      headers: getSdkAuthHeaders(),
-    });
+    const resp = await api.get(path, { headers: getSdkAuthHeaders() });
+
     let offersList: any[] = [];
     if (resp && Array.isArray(resp.offers)) {
       offersList = resp.offers;
@@ -199,22 +184,19 @@ export class SDK implements GrowBoltSDK {
     } else if (Array.isArray(resp)) {
       offersList = resp;
     }
-    // Keep the unfiltered catalog in sdkState; filtered fetches are ephemeral.
+
     if (!hasFilters) {
       sdkState.offers = offersList;
     }
     return this.getOffers();
   }
 
-  async listCategories(options?: { forceRefresh?: boolean }): Promise<any[]> {
+  async listCategories(_options?: { forceRefresh?: boolean }): Promise<any[]> {
     assertInitialized();
-    const api: any = (sdkState as any).apiClient;
+    const api = sdkState.apiClient;
     if (!api) throw new Error("API client not available");
 
-    // Using a simplified cache check here. A fuller implementation could use sdkState.categories
-    // but ephemeral fetches are also fine if we just want it dynamic.
-    const path = `/api/v1/sdk/offers/categories/`;
-    const resp = await api.get(path, {
+    const resp = await api.get(`/api/v1/sdk/offers/categories/`, {
       headers: getSdkAuthHeaders(),
     });
 
@@ -232,42 +214,37 @@ export class SDK implements GrowBoltSDK {
     }));
   }
 
-  // Fetch ongoing items for a given sub4 and tab (completed|pending|failed)
   async getOngoing(params: { sub4?: string; tab: string }) {
     assertInitialized();
-    const api: any = (sdkState as any).apiClient;
+    const api = sdkState.apiClient;
     if (!api) throw new Error("API client not available");
+
     const sub4 = params.sub4 || sdkState.user?.sub4 || "";
     const { tab } = params;
-    const q = `?sub4=${encodeURIComponent(sub4)}&tab=${encodeURIComponent(tab)}`;
-    const path = `/api/v1/sdk/ongoing/${q}`;
-    return api.get(path, {
-      headers: getSdkAuthHeaders(),
-    });
+    const q = `?sub4=${encodeURIComponent(String(sub4))}&tab=${encodeURIComponent(tab)}`;
+    return api.get(`/api/v1/sdk/ongoing/${q}`, { headers: getSdkAuthHeaders() });
   }
 
-  // Fetch offer details by offerId
   async getOfferDetails(offerId: string) {
     assertInitialized();
-    const api: any = (sdkState as any).apiClient;
+    const api = sdkState.apiClient;
     if (!api) throw new Error("API client not available");
-    const path = `/api/v1/sdk/offers/${encodeURIComponent(offerId)}/`;
 
-    return api.get(path, {
+    return api.get(`/api/v1/sdk/offers/${encodeURIComponent(offerId)}/`, {
       headers: getSdkAuthHeaders(),
     });
   }
 
   async redeemOffer(offerId: string) {
     assertInitialized();
-    const api: any = (sdkState as any).apiClient;
+    const api = sdkState.apiClient;
     if (!api) throw new Error("API client not available");
 
-    const path = `/api/v1/sdk/offers/${encodeURIComponent(offerId)}/redeem/`;
-
-    return api.post(path, undefined, {
-      headers: getSdkAuthHeaders(),
-    });
+    return api.post(
+      `/api/v1/sdk/offers/${encodeURIComponent(offerId)}/redeem/`,
+      undefined,
+      { headers: getSdkAuthHeaders() },
+    );
   }
 
   identify(params: { sub4: string }): void {
@@ -293,8 +270,8 @@ export class SDK implements GrowBoltSDK {
     console.log("[GrowBolt] User reset");
   }
 
-  get user(): { sub4?: string;[key: string]: any } | null {
-    return sdkState.user;
+  get user(): { sub4?: string; [key: string]: any } | null {
+    return sdkState.user as { sub4?: string; [key: string]: any } | null;
   }
 
   get sub4(): string | null {

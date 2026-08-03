@@ -40,8 +40,7 @@ export async function init(config?: Partial<SDKConfig>): Promise<InitResponse> {
     const api = new ApiClient({
       baseUrl: resolvedBase,
     });
-    // expose api client on sdkState for later SDK methods
-    (sdkState as any).apiClient = api;
+    sdkState.apiClient = api;
 
     // Prefer calling offers endpoint which both verifies the apiKey and returns offers+publisherConfig
     let resp: any = null;

@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type ApiClient from '../../services/api/apiClient';
+
 export interface SDKConfig {
   apiKey: string;
   baseUrl?: string;
@@ -14,9 +17,9 @@ export const sdkState: {
   initialized: boolean;
   config: SDKConfig | null;
   widgetOpen: boolean;
-  publisherConfig: any | null;
+  publisherConfig: any;
   offers: any[] | null;
-  apiClient?: any;
+  apiClient: ApiClient | undefined;
   user: SDKUser | null;
 } = {
   initialized: false,
@@ -24,10 +27,11 @@ export const sdkState: {
   widgetOpen: false,
   publisherConfig: null,
   offers: null,
+  apiClient: undefined,
   user: null,
 };
 
-export function resetSdkState() {
+export function resetSdkState(): void {
   sdkState.initialized = false;
   sdkState.config = null;
   sdkState.widgetOpen = false;
@@ -36,4 +40,3 @@ export function resetSdkState() {
   sdkState.apiClient = undefined;
   sdkState.user = null;
 }
-

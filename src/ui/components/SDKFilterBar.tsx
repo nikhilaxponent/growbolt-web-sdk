@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Dropdown from "./Dropdown";
+import { useSDK } from "../hooks/useSDK";
 
 type Props = {
   category?: string;
@@ -26,6 +27,7 @@ const SDKFilterBar: React.FC<Props> = ({
   sort,
   onSort,
 }) => {
+  const sdk = useSDK();
   const [active, setActive] = useState<string>(category);
   const [localQuery, setLocalQuery] = useState<string>(query ?? "");
   const [localDevice, setLocalDevice] = useState<string>(device ?? "");
@@ -37,18 +39,15 @@ const SDKFilterBar: React.FC<Props> = ({
     let mounted = true;
     const fetchCats = async () => {
       try {
-        const GrowBolt = (window as any).GrowBolt;
-        if (GrowBolt && GrowBolt.listCategories) {
-          const res = await GrowBolt.listCategories();
-          if (mounted) setCategories(res);
-        }
+        const res = await sdk.listCategories();
+        if (mounted) setCategories(res as any[]);
       } catch (e) {
         console.warn("[GrowBolt] Failed to fetch categories", e);
       }
     };
     fetchCats();
     return () => { mounted = false; };
-  }, []);
+  }, [sdk]);
 
   useEffect(() => {
     const nextCategory = category;

@@ -2,6 +2,7 @@
 import React, { Suspense, useState, useEffect } from "react";
 import { toPlainText } from "../utils/sanitizeContent";
 import { resolveTrackedOfferUrl } from "../utils/offerClick";
+import { useSDK } from "./hooks/useSDK";
 import PaymentMilestoneCard from "./components/PaymentMilestoneCard";
 import ClaimLinkModal from "./components/ClaimLinkModal";
 import noteIcon from "./assets/note.svg";
@@ -43,6 +44,7 @@ export default function SDKDetailsPage({
   onClose,
   onBack,
 }: Props) {
+  const sdk = useSDK();
   const [details, setDetails] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,9 +65,7 @@ export default function SDKDetailsPage({
       setLoading(true);
       setError(null);
       try {
-        if (!window.GrowBolt) throw new Error("GrowBolt SDK not available");
-        const res = await window.GrowBolt.getOfferDetails(offerId!);
-
+        const res = await sdk.getOfferDetails(offerId!);
         if (active) {
           setDetails(res);
           setLoading(false);
@@ -84,7 +84,7 @@ export default function SDKDetailsPage({
     return () => {
       active = false;
     };
-  }, [open, offerId]);
+  }, [open, offerId, sdk]);
 
   const isValidIcon = (url: string | undefined | null) => {
     if (!url) return false;
@@ -161,15 +161,18 @@ export default function SDKDetailsPage({
     if (!offerId) return;
 
     try {
-      const targetUrl = await resolveTrackedOfferUrl({
-        offerId,
-        title,
-        fallbackUrl: details?.url,
-        fallbackPreviewUrl:
-          details?.preview_url ||
-          fallbackOffer?.url ||
-          fallbackOffer?.preview_url,
-      });
+      const targetUrl = await resolveTrackedOfferUrl(
+        {
+          offerId,
+          title,
+          fallbackUrl: details?.url,
+          fallbackPreviewUrl:
+            details?.preview_url ||
+            fallbackOffer?.url ||
+            fallbackOffer?.preview_url,
+        },
+        sdk,
+      );
 
       if (!targetUrl) return;
 

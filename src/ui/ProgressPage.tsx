@@ -1,13 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Pills from "./components/Pills";
 import ProgressItem from "./components/ProgressItem";
-import emptyIcon from "./assets/empty.svg"
+import emptyIcon from "./assets/empty.svg";
+import { useSDK } from "./hooks/useSDK";
+
 type Props = {
   onBack?: () => void;
 };
 
 export default function ProgressPage({ onBack }: Props) {
+  const sdk = useSDK();
   const [active, setActive] = useState<string>("progress");
   const [items, setItems] = useState<any[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>({
@@ -22,12 +25,15 @@ export default function ProgressPage({ onBack }: Props) {
     setLoading(true);
     setError(null);
     try {
-      if (!window.GrowBolt) throw new Error("GrowBolt SDK not available");
+      const config = sdk.config;
+      const sub4 =
+        sdk.sub4 ||
+        config?.sub4 ||
+        (config as Record<string, unknown>)?.userId as string | undefined ||
+        sdk.sessionId ||
+        "postman";
 
-      const config = window.GrowBolt.config;
-      const sub4 = window.GrowBolt.sub4 || config?.sub4 || config?.userId || window.GrowBolt.sessionId || "postman";
-
-      const res = await window.GrowBolt.getOngoing({ sub4, tab: active });
+      const res = await sdk.getOngoing({ sub4: sub4 ?? undefined, tab: active }) as any;
       if (res && Array.isArray(res.items)) {
         setItems(res.items);
       } else {
@@ -46,7 +52,7 @@ export default function ProgressPage({ onBack }: Props) {
     } finally {
       setLoading(false);
     }
-  }, [active]);
+  }, [active, sdk]);
 
   useEffect(() => {
     fetchOngoing();

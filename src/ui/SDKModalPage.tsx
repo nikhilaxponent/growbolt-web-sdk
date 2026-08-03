@@ -3,6 +3,7 @@ import React, { useMemo, useState, Suspense, useEffect } from "react";
 import type { OfferModel } from "./types";
 import statusIcon from "./assets/status.svg";
 import { mapApiOfferToModel } from "./mapOffer";
+import { useSDK } from "./hooks/useSDK";
 
 const Modal = React.lazy(() => import("./Modal"));
 const OfferList = React.lazy(() => import("./OfferList"));
@@ -24,6 +25,7 @@ export default function SDKModalPage({
   onClose,
   onItemClick,
 }: Props) {
+  const sdk = useSDK();
   const [showStatus, setShowStatus] = useState(false);
   const [category, setCategory] = useState<string>("all");
   const [query, setQuery] = useState<string>("");
@@ -47,19 +49,16 @@ export default function SDKModalPage({
 
     let cancelled = false;
     const timer = window.setTimeout(async () => {
-      const GrowBolt = window.GrowBolt;
-      if (!GrowBolt) return;
-
       setFetching(true);
       try {
-        const apiOffers = await GrowBolt.listOffers({
+        const apiOffers = await sdk.listOffers({
           search: search || undefined,
           os,
           forceRefresh: true,
         });
         if (cancelled) return;
         setRemoteItems(
-          apiOffers.map((offer: any) => mapApiOfferToModel(offer)),
+          (apiOffers as any[]).map((offer: any) => mapApiOfferToModel(offer)),
         );
       } catch (err) {
         if (!cancelled) {
@@ -75,7 +74,7 @@ export default function SDKModalPage({
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [open, query, device]);
+  }, [open, query, device, sdk]);
 
   const sourceItems = remoteItems ?? items;
 

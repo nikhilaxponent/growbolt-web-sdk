@@ -1,16 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { Suspense, useEffect } from "react";
-import logoImg from "./assets/logo-green.svg";
-import { mapApiOfferToModel } from "./mapOffer";
+import React, { Suspense } from 'react';
+import logoImg from './assets/logo-green.svg';
+import { mapApiOfferToModel } from './mapOffer';
+import { useSDK } from './hooks/useSDK';
 
-const SDKModalPage = React.lazy(() => import("./SDKModalPage"));
-const SDKDetailsPage = React.lazy(() => import("./SDKDetailsPage"));
+const SDKModalPage = React.lazy(() => import('./SDKModalPage'));
+const SDKDetailsPage = React.lazy(() => import('./SDKDetailsPage'));
 
 type SDKLauncherProps = {
   onClose?: () => void;
 };
 
 export default function SDKLauncher({ onClose }: SDKLauncherProps) {
+  const sdk = useSDK();
   const [open, setOpen] = React.useState(true);
   const [detailsOpen, setDetailsOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
@@ -18,37 +20,29 @@ export default function SDKLauncher({ onClose }: SDKLauncherProps) {
   const [selectedOffer, setSelectedOffer] = React.useState<any | null>(null);
   const [loadError, setLoadError] = React.useState<string | null>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     async function loadOffers() {
-      const GrowBolt = window.GrowBolt;
-      if (!GrowBolt) {
-        setLoadError("GrowBolt SDK script is not loaded.");
-        setLoading(false);
-        return;
-      }
-
-      if (!GrowBolt.config?.apiKey) {
+      if (!sdk.config?.apiKey) {
         setLoadError(
           "SDK not initialized. Call GrowBolt.init({ apiKey: 'YOUR_KEY' }) before openOfferwall().",
         );
         setLoading(false);
         return;
       }
-
       try {
-        const apiOffers = await GrowBolt.listOffers();
-        setOffers(apiOffers.map((offer: any) => mapApiOfferToModel(offer)));
+        const apiOffers = await sdk.listOffers();
+        setOffers((apiOffers as any[]).map((offer: any) => mapApiOfferToModel(offer)));
         setLoadError(null);
       } catch (err) {
-        console.error("SDK Error:", err);
-        setLoadError("Failed to load offers.");
+        console.error('SDK Error:', err);
+        setLoadError('Failed to load offers.');
       } finally {
         setLoading(false);
       }
     }
 
     loadOffers();
-  }, []);
+  }, [sdk]);
 
   if (loading) {
     return <div className="gb-sdk-loading">Loading offers...</div>;
@@ -56,7 +50,7 @@ export default function SDKLauncher({ onClose }: SDKLauncherProps) {
 
   if (loadError) {
     return (
-      <div className="gb-sdk-error" style={{ padding: 24, color: "#b91c1c" }}>
+      <div className="gb-sdk-error" style={{ padding: 24, color: '#b91c1c' }}>
         {loadError}
       </div>
     );
@@ -68,7 +62,7 @@ export default function SDKLauncher({ onClose }: SDKLauncherProps) {
         <SDKModalPage
           open={open}
           title={
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <img
                 src={logoImg}
                 alt="logo"
