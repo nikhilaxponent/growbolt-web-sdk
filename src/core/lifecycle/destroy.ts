@@ -1,7 +1,7 @@
 import { emitter } from "../events/emitter";
-import { sdkState, resetSdkState } from "../state/sdkState";
-import { sessionState, resetSessionState } from "../state/sessionState";
-import modal from "../../modules/widget/modal";
+import { resetSdkState } from "../state/sdkState";
+import { resetSessionState } from "../state/sessionState";
+import { destroyWidget } from "../../modules/widget/widget";
 import { logger } from "../../services/logger/logger";
 import sessionService from "../../services/session/session";
 
@@ -9,10 +9,7 @@ export async function destroy() {
   try {
     logger.info("SDK Destroying");
 
-    // close modal if open
-    if (sdkState.widgetOpen) {
-      modal.closeModal();
-    }
+    destroyWidget();
 
     // clear session
     sessionService.clearSession();

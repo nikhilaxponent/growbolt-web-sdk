@@ -1,12 +1,27 @@
-import { inlineRenderer } from '../../renderers/inline/InlineRenderer';
+import { createRenderer } from '../../renderers/RendererFactory';
+import type { Renderer } from '../../renderers/RendererInterface';
 import type { SDKService } from '../../types/service';
 
-export function openOfferwall(opts: { url?: string } | undefined, service: SDKService): void {
-  inlineRenderer.open(service, opts);
+let activeRenderer: Renderer | null = null;
+
+export function openOfferwall(
+  opts: { url?: string } | undefined,
+  service: SDKService,
+): void {
+  activeRenderer = createRenderer({
+    renderMode: service.config?.renderMode,
+    offerwallUrl: service.config?.offerwallUrl,
+  });
+  activeRenderer.open(service, opts);
 }
 
 export function closeOfferwall(): void {
-  inlineRenderer.close();
+  activeRenderer?.close();
 }
 
-export default { openOfferwall, closeOfferwall };
+export function destroyWidget(): void {
+  activeRenderer?.destroy();
+  activeRenderer = null;
+}
+
+export default { openOfferwall, closeOfferwall, destroyWidget };

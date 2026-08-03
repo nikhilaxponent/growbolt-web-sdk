@@ -10,6 +10,12 @@ export interface SDKConfig {
   debug?: boolean;
   timeout?: number;
   sub4?: string;
+  /** `"inline"` (default) renders the offerwall directly into the host DOM.
+   *  `"iframe"` renders it in a sandboxed `<iframe>` loaded from `offerwallUrl`. */
+  renderMode?: 'inline' | 'iframe';
+  /** URL of the hosted offerwall bundle. Only used when `renderMode: "iframe"`.
+   *  Defaults to `https://sdk.growbolt.ai/offerwall/offerwall.html`. */
+  offerwallUrl?: string;
   [key: string]: any;
 }
 
