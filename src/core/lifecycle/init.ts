@@ -53,13 +53,18 @@ export async function init(config?: Partial<SDKConfig>): Promise<InitResponse> {
     } catch (err) {
       logger.warn("Offers endpoint failed, falling back to SDK_INIT", err);
       // fallback to existing init path
+      // apiKey is sent via Authorization header only — not in the body.
+      // If the SDK_INIT endpoint on your backend currently reads apiKey from
+      // the request body, update it to read the Authorization header instead
+      // (scheme: SdkToken) and remove the body field on your side.
       try {
         logger.debug(`Calling backend init ${ENDPOINTS.SDK_INIT}`);
-        resp = await api.post(ENDPOINTS.SDK_INIT, {
-          apiKey: config.apiKey,
-          sessionId: session.sessionId,
-        });
-        logger.debug("Backend init response:", resp);
+        resp = await api.post(
+          ENDPOINTS.SDK_INIT,
+          { sessionId: session.sessionId },
+          { headers: getSdkAuthHeaders() } as any,
+        );
+        logger.debug("Backend init response received");
       } catch (err2) {
         logger.warn("Backend initialization failed, continuing offline", err2);
         resp = null;
@@ -123,7 +128,7 @@ export async function init(config?: Partial<SDKConfig>): Promise<InitResponse> {
       if (sdkState.config) {
         sdkState.config.sub4 = savedUser.sub4;
       }
-      console.log("[GrowBolt] User identified", { sub4: savedUser.sub4 });
+      logger.debug("User restored from storage");
     }
 
     sdkState.initialized = true;
@@ -134,7 +139,6 @@ export async function init(config?: Partial<SDKConfig>): Promise<InitResponse> {
     });
 
     logger.info("SDK initialized successfully");
-    console.log("[GrowBolt] Initialized", { apiKey: config.apiKey });
     return {
       ok: true,
       session,

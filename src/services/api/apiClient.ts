@@ -1,5 +1,6 @@
 import { APIError } from "../../types/errors";
 import { sdkState } from "../../core/state/sdkState";
+import { logger } from "../../services/logger/logger";
 
 export interface ApiClientOptions {
   baseUrl?: string;
@@ -29,8 +30,7 @@ export class ApiClient {
 
   async request(path: string, opts: RequestInit = {}, retries = 2): Promise<any> {
     const sub4 = sdkState.user?.sub4 || sdkState.config?.sub4 || undefined;
-    const endpoint = path.split("?")[0];
-    console.log("[GrowBolt] API Request", { endpoint, sub4 });
+    logger.debug("API Request:", path.split("?")[0]);
 
     let finalPath = path;
     if (sub4) {
@@ -54,7 +54,7 @@ export class ApiClient {
         try {
           data = text ? JSON.parse(text) : null;
         } catch (e) {
-          console.warn("Failed to parse JSON response, returning raw text", e);
+          logger.warn("Failed to parse JSON response, returning raw text");
           data = text;
         }
         if (!res.ok) {

@@ -60,7 +60,6 @@ export class SDK implements GrowBoltSDK {
       return;
     }
     const sub4 = sdkState.user?.sub4 || sdkState.config?.sub4 || null;
-    console.log("[GrowBolt] Opening offerwall", { sub4 });
 
     let finalOpts = opts;
     if (opts?.url && sub4) {
@@ -258,7 +257,6 @@ export class SDK implements GrowBoltSDK {
       sdkState.config.sub4 = sub4;
     }
     storage.storageSet("user", user);
-    console.log("[GrowBolt] User identified", { sub4 });
   }
 
   reset(): void {
@@ -267,7 +265,6 @@ export class SDK implements GrowBoltSDK {
       sdkState.config.sub4 = undefined;
     }
     storage.storageRemove("user");
-    console.log("[GrowBolt] User reset");
   }
 
   get user(): { sub4?: string; [key: string]: any } | null {
