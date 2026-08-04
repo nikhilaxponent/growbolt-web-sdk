@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { IframeHostBridge } from '../bridge/IframeHostBridge';
+import { createGuestBridge } from '../bridge/GuestBridgeFactory';
 import { PostMessageSDKService } from './PostMessageSDKService';
 import SDKContext from '../ui/context/SDKContext';
 import SDKLauncher from '../ui/SDKLauncher';
@@ -9,7 +9,7 @@ import { injectCSS } from '../utils/dom';
 
 injectCSS('growbolt-sdk-styles', styles);
 
-const bridge = new IframeHostBridge();
+const bridge = createGuestBridge();
 
 bridge.sendReady();
 

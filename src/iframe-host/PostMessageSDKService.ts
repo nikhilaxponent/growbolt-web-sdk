@@ -1,14 +1,14 @@
 import type { SDKService } from '../types/service';
 import type { SDKConfig, EventPayload } from '../types/sdk';
-import type { IframeHostBridge, InitPayload } from '../bridge/IframeHostBridge';
+import type { GuestBridge, InitPayload } from '../bridge/GuestBridge';
 
 export class PostMessageSDKService implements SDKService {
-  private bridge: IframeHostBridge;
+  private bridge: GuestBridge;
   readonly config: SDKConfig | null;
   readonly sub4: string | null;
   readonly sessionId: string | null;
 
-  constructor(bridge: IframeHostBridge, init: InitPayload) {
+  constructor(bridge: GuestBridge, init: InitPayload) {
     this.bridge = bridge;
     this.sub4 = init.sub4;
     this.sessionId = init.sessionId;

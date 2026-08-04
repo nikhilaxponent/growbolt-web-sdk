@@ -10,7 +10,9 @@
     "build:prod": "VITE_API_BASE_URL=https://admin.growbolt.ai vite build",
     "preview": "vite preview",
     "build:playground": "npm run build && cp dist/sdk.js playground/dist-sdk.js",
-    "serve:playground": "npx serve playground"
+    "serve:playground": "npx serve playground",
+    "build:demoiframe": "npm run build && cp dist/sdk.js ../demoiframe/sdk.js && mkdir -p ../demoiframe/offerwall && cp dist/offerwall/offerwall.js dist/offerwall/offerwall.html ../demoiframe/offerwall/",
+    "serve:demoiframe": "npx serve ../demoiframe"
   },
   "dependencies": {
     "dompurify": "^3.4.7",

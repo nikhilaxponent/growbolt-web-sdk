@@ -65,9 +65,13 @@ export class IframeRenderer implements Renderer {
     const iframe = document.createElement('iframe');
     iframe.src = this.offerwallUrl;
     iframe.title = 'GrowBolt Offerwall';
+    // allow-same-origin is required: without it the browser assigns the iframe
+    // a null opaque origin, so event.origin === "null" on both sides and all
+    // postMessage origin checks fail silently (GB_READY never delivered).
+    // The offerwall bundle is our own trusted code so this is safe.
     iframe.setAttribute(
       'sandbox',
-      'allow-scripts allow-popups allow-popups-to-escape-sandbox',
+      'allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox',
     );
     Object.assign(iframe.style, {
       position: 'absolute',
@@ -85,13 +89,16 @@ export class IframeRenderer implements Renderer {
     this.iframe = iframe;
 
     // ── Bridge ───────────────────────────────────────────────────────────────
-    let iframeOrigin: string;
+    // Resolve relative URLs (e.g. "./offerwall/offerwall.html") against the
+    // current page so that new URL() never throws on a relative-only string.
+    let resolvedUrl: URL;
     try {
-      iframeOrigin = new URL(this.offerwallUrl).origin;
+      resolvedUrl = new URL(this.offerwallUrl, window.location.href);
     } catch {
       this.callbacks_onError('[GrowBolt] Invalid offerwallUrl: ' + this.offerwallUrl);
       return;
     }
+    const iframeOrigin = resolvedUrl.origin;
 
     this.bridge = new PostMessageBridge(iframe, iframeOrigin, service, {
       onReady: () => {
