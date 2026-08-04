@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import QRCode from "qrcode";
+import { logger } from "../../services/logger/logger";
 
 type Props = {
   open: boolean;
@@ -40,7 +41,7 @@ export default function ClaimLinkModal({
         }
       } catch (err) {
         if (!cancelled) {
-          console.error("QR generation failed", err);
+          logger.error("QR generation failed", err);
           setQrError("Could not generate QR code. Use Open Link below.");
           setQrDataUrl("");
         }
@@ -98,14 +99,14 @@ export default function ClaimLinkModal({
         </div>
 
         <div className="gb-claim-actions">
-          {/* <a
+          <a
             href={url}
             target="_blank"
             rel="noopener noreferrer"
             className="gb-claim-open-link"
           >
             Open Link
-          </a> */}
+          </a>
           <button type="button" className="gb-claim-cancel" onClick={onClose}>
             Cancel
           </button>

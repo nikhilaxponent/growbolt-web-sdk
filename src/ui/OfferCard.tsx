@@ -140,7 +140,7 @@ export default function OfferCard({
       <div className="meta">
         <div className="title-row" style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", gap: "8px" }}>
           <div className="title" style={{ whiteSpace: "normal" }}>{model.name}</div>
-          
+
           {(model as any).duration && (
             <div className="hide-on-mobile" style={{ display: "flex", alignItems: "center", background: "#f59e0b", color: "#fff", fontSize: "11px", fontWeight: "600", padding: "2px 6px", borderRadius: "12px", flexShrink: 0 }}>
               <img
@@ -160,7 +160,7 @@ export default function OfferCard({
 
         <div className="subtitle-expiry-row" style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "4px", flexWrap: "nowrap", overflow: "hidden" }}>
           {model.subtitle && <div className="subtitle" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{model.subtitle}</div>}
-          
+
           {(model.subtitle && (model as any).duration) && (
             <span className="hide-on-desktop" style={{ color: "#6b7280", fontSize: "11px", flexShrink: 0 }}>&bull;</span>
           )}

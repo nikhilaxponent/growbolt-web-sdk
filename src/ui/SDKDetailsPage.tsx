@@ -3,6 +3,7 @@ import React, { Suspense, useState, useEffect } from "react";
 import { toPlainText } from "../utils/sanitizeContent";
 import { resolveTrackedOfferUrl } from "../utils/offerClick";
 import { useSDK } from "./hooks/useSDK";
+import { useOfferClaim } from "./hooks/useOfferClaim";
 import PaymentMilestoneCard from "./components/PaymentMilestoneCard";
 import ClaimLinkModal from "./components/ClaimLinkModal";
 import noteIcon from "./assets/note.svg";
@@ -48,8 +49,7 @@ export default function SDKDetailsPage({
   const [details, setDetails] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [claimModalOpen, setClaimModalOpen] = useState(false);
-  const [claimUrl, setClaimUrl] = useState("");
+  const { claimModalOpen, claimUrl, openClaim, closeClaim } = useOfferClaim();
 
   useEffect(() => {
     if (!open || !offerId) {
@@ -176,8 +176,7 @@ export default function SDKDetailsPage({
 
       if (!targetUrl) return;
 
-      setClaimUrl(targetUrl);
-      setClaimModalOpen(true);
+      openClaim(targetUrl);
     } catch (err) {
       console.error("Redeem API Failed", err);
     }
@@ -383,7 +382,7 @@ export default function SDKDetailsPage({
       <ClaimLinkModal
         open={claimModalOpen}
         url={claimUrl}
-        onClose={() => setClaimModalOpen(false)}
+        onClose={closeClaim}
       />
     </Suspense>
   );
