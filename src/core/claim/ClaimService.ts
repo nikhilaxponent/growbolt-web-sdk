@@ -4,11 +4,10 @@ import {
   type DevicePlatform,
 } from "../../utils/device";
 import { openExternalUrl } from "../../utils/openExternal";
-import { logger } from "../../services/logger/logger";
 
 /** Callbacks the caller supplies to react to the claim decision. */
 export interface ClaimHandlers {
-  /** Show the QR-code / manual-link modal for this URL. */
+  /** Show the QR / tappable-link modal for this URL. */
   onShowModal: (url: string) => void;
 }
 
@@ -16,23 +15,24 @@ export interface ClaimHandlers {
 export interface ClaimServiceDeps {
   detectPlatform: () => DevicePlatform;
   openExternalUrl: (url: string) => boolean;
-  /** ms to wait for a mobile redirect to take effect before falling back. */
-  redirectTimeoutMs: number;
 }
-
-const DEFAULT_REDIRECT_TIMEOUT_MS = 1500;
 
 /**
  * Framework-agnostic decision logic for claiming an offer.
  *
- *   desktop / unknown        → show the QR modal
- *   android / ios (+tablets) → redirect to the store URL, then, if the page is
- *                              still here after redirectTimeoutMs (blocked,
- *                              in-app webview, no store handler), fall back to
- *                              the QR modal
+ *   desktop / unknown        → show the QR modal (scan to continue on a phone)
+ *   android / ios (+tablets) → redirect straight to the store URL
  *
- * All browser dependencies are injected, so the decision logic is unit-testable
- * without a real DOM.
+ * A QR code is useless on the phone the user is already holding, so mobile
+ * never shows it. The redirect is delivered via openExternalUrl; inside a
+ * native WebView the host app turns that navigation into a real store launch
+ * (onShouldStartLoadWithRequest → Linking.openURL, or by handling the SDK's
+ * `offer_click` event). We deliberately do NOT probe for redirect success
+ * with a visibilitychange/timeout fallback — those events are unreliable
+ * inside WebViews and produced false QR fallbacks. Only if the redirect cannot
+ * even be initiated do we surface the tappable-link modal.
+ *
+ * Dependencies are injected so the decision logic is unit-testable.
  */
 export class ClaimService {
   private readonly deps: ClaimServiceDeps;
@@ -41,7 +41,6 @@ export class ClaimService {
     this.deps = {
       detectPlatform: deps.detectPlatform ?? detectPlatform,
       openExternalUrl: deps.openExternalUrl ?? openExternalUrl,
-      redirectTimeoutMs: deps.redirectTimeoutMs ?? DEFAULT_REDIRECT_TIMEOUT_MS,
     };
   }
 
@@ -49,56 +48,19 @@ export class ClaimService {
   claim(url: string, handlers: ClaimHandlers): void {
     if (!url) return;
 
-    const platform = this.deps.detectPlatform();
-    if (!isMobilePlatform(platform)) {
-      handlers.onShowModal(url); // desktop / unknown → QR
+    // Desktop / unknown → QR modal (scan to continue on a phone).
+    if (!isMobilePlatform(this.deps.detectPlatform())) {
+      handlers.onShowModal(url);
       return;
     }
 
-    this.redirectWithFallback(url, () => handlers.onShowModal(url));
-  }
-
-  /**
-   * Attempt a mobile redirect. Invokes onFallback exactly once if the redirect
-   * cannot be initiated, or if the page is still visible after the timeout.
-   */
-  private redirectWithFallback(url: string, onFallback: () => void): void {
+    // Mobile → redirect out to the store. Never show a QR on the device the
+    // user is already holding. Only fall back to the (QR-less) link modal if
+    // the redirect could not even be initiated.
     const initiated = this.deps.openExternalUrl(url);
     if (!initiated) {
-      onFallback();
-      return;
+      handlers.onShowModal(url);
     }
-
-    // No DOM to observe navigation — treat as best-effort success.
-    if (typeof document === "undefined" || typeof window === "undefined") {
-      return;
-    }
-
-    let settled = false;
-
-    // Settle exactly once: either the redirect took effect (page hidden or
-    // unloaded → runFallback=false) or it timed out (runFallback=true).
-    const finish = (runFallback: boolean) => {
-      if (settled) return;
-      settled = true;
-      document.removeEventListener("visibilitychange", onVisibility);
-      window.removeEventListener("pagehide", onLeave);
-      clearTimeout(timer);
-      if (runFallback) {
-        logger.debug("Store redirect did not take effect — showing fallback");
-        onFallback();
-      }
-    };
-
-    // Page hidden or unloaded ⇒ the redirect worked; cancel the fallback.
-    const onLeave = () => finish(false);
-    const onVisibility = () => {
-      if (document.visibilityState === "hidden") finish(false);
-    };
-
-    document.addEventListener("visibilitychange", onVisibility);
-    window.addEventListener("pagehide", onLeave);
-    const timer = setTimeout(() => finish(true), this.deps.redirectTimeoutMs);
   }
 }
 

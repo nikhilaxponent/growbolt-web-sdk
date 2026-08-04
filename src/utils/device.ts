@@ -25,8 +25,8 @@ function getNavigator(): Navigator | undefined {
  * - Android phones and tablets both include "android" in the UA.
  * - iPadOS 13+ masquerades as desktop Safari ("Macintosh") — we disambiguate
  *   it via touch-point support, so iPads are correctly treated as iOS.
- * - Chromium User-Agent Client Hints are used when present (most reliable),
- *   but Safari/iOS does not expose them, so iOS always resolves via the UA.
+ * - Chromium User-Agent Client Hints are used when present (most reliable).
+ * - Comprehensive mobile/tablet UA & touch checks catch Android tablets, Kindle, Mobile WebViews.
  */
 export function detectPlatform(): DevicePlatform {
   const nav = getNavigator();
@@ -34,10 +34,12 @@ export function detectPlatform(): DevicePlatform {
 
   const ua = (nav.userAgent || "").toLowerCase();
 
-  // 1. Chromium Client Hints — authoritative for Android when available.
+  // 1. Chromium Client Hints — authoritative when available.
   const uaData = (nav as Navigator & { userAgentData?: UserAgentDataLike })
     .userAgentData;
-  if (uaData?.platform?.toLowerCase() === "android") return "android";
+  if (uaData?.platform?.toLowerCase() === "android" || uaData?.mobile === true) {
+    return "android";
+  }
 
   // 2. Android (phones + tablets).
   if (/android/.test(ua)) return "android";
@@ -50,6 +52,25 @@ export function detectPlatform(): DevicePlatform {
   const isTouchMac =
     typeof nav.maxTouchPoints === "number" && nav.maxTouchPoints > 1;
   if (/ipad/.test(ua) || (looksLikeMac && isTouchMac)) return "ios";
+
+  // 5. General mobile & tablet UA check (Kindle, Silk, Opera Mini, Mobile Safari, Blackberry, etc.)
+  if (
+    /mobile|tablet|kindle|silk|opera mini|cobalt|android|iphone|ipad|ipod|blackberry|iemobile|webos/i.test(
+      ua,
+    )
+  ) {
+    return "android";
+  }
+
+  // 6. Touch-screen mobile/tablet viewport heuristic
+  if (
+    typeof nav.maxTouchPoints === "number" &&
+    nav.maxTouchPoints > 0 &&
+    typeof window !== "undefined" &&
+    (window.innerWidth <= 1024 || window.innerHeight <= 1024)
+  ) {
+    return "android";
+  }
 
   return "desktop";
 }

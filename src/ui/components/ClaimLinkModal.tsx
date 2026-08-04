@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import QRCode from "qrcode";
 import { logger } from "../../services/logger/logger";
+import { isMobilePlatform } from "../../utils/device";
 
 type Props = {
   open: boolean;
@@ -13,14 +14,17 @@ type Props = {
 export default function ClaimLinkModal({
   open,
   url,
-  title = "Continue on your phone",
+  title,
   onClose,
 }: Props) {
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
   const [qrError, setQrError] = useState<string | null>(null);
+  const isMobile = isMobilePlatform();
+
+  const modalTitle = title || (isMobile ? "Continue to Offer" : "Continue on your phone");
 
   useEffect(() => {
-    if (!open || !url) {
+    if (!open || !url || isMobile) {
       setQrDataUrl("");
       setQrError(null);
       return;
@@ -53,7 +57,7 @@ export default function ClaimLinkModal({
     return () => {
       cancelled = true;
     };
-  }, [open, url]);
+  }, [open, url, isMobile]);
 
   if (!open) return null;
 
@@ -68,7 +72,7 @@ export default function ClaimLinkModal({
       <div className="gb-claim-modal" onClick={(e) => e.stopPropagation()}>
         <div className="gb-claim-modal-header">
           <h2 id="gb-claim-modal-title" className="gb-claim-modal-title">
-            {title}
+            {modalTitle}
           </h2>
           <button
             type="button"
@@ -81,22 +85,26 @@ export default function ClaimLinkModal({
         </div>
 
         <p className="gb-claim-modal-hint">
-          Scan the QR code with your phone camera, or open the link directly.
+          {isMobile
+            ? "Tap the button below to open the offer directly."
+            : "Scan the QR code with your phone camera, or open the link directly."}
         </p>
 
-        <div className="gb-claim-qr-wrap">
-          {qrDataUrl ? (
-            <img
-              src={qrDataUrl}
-              alt="QR code for offer link"
-              className="gb-claim-qr"
-            />
-          ) : (
-            <div className="gb-claim-qr-placeholder">
-              {qrError || "Generating QR code…"}
-            </div>
-          )}
-        </div>
+        {!isMobile && (
+          <div className="gb-claim-qr-wrap">
+            {qrDataUrl ? (
+              <img
+                src={qrDataUrl}
+                alt="QR code for offer link"
+                className="gb-claim-qr"
+              />
+            ) : (
+              <div className="gb-claim-qr-placeholder">
+                {qrError || "Generating QR code…"}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="gb-claim-actions">
           <a
