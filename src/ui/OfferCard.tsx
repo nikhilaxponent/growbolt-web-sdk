@@ -101,7 +101,7 @@ export default function OfferCard({
         <ClaimLinkModal
           open={claimModalOpen}
           url={claimUrl}
-          onClose={() => setClaimModalOpen(false)}
+          onClose={closeClaim}
         />
       </div>
     );

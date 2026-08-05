@@ -12,6 +12,7 @@ import completedIcon from "./assets/completed.svg";
 import progressIcon from "./assets/progress.svg";
 import lockedIcon from "./assets/locked.svg";
 import RichContent from "./components/RichContent";
+import { formatAmount, isValidIcon, formatExpiryDuration } from "./mapOffer";
 const Modal = React.lazy(() => import("./Modal"));
 const BannerSection = React.lazy(() => import("./components/BannerSection"));
 const OfferHeaderCard = React.lazy(
@@ -141,21 +142,22 @@ export default function SDKDetailsPage({
       fallbackOffer?.earn || ""
     );
   const duration =
-    details?.expiry_days > 0
-      ? `${details.expiry_days} ${details?.expiry_type === "hours" ? "Hours" : "Days"
-      }`
-      : "Instant";
+    formatExpiryDuration(details?.expiry, details?.expiry_type) !== "Instant"
+      ? formatExpiryDuration(details?.expiry, details?.expiry_type)
+      : fallbackOffer?.duration || "Instant";
   const deviceOs =
     details?.strictly_os
       ? Object.keys(details.strictly_os.items || {})[0]?.toLowerCase()
       : fallbackOffer?.deviceOs || "";
   const note =
     details?.note ||
-    "You will Not be rewarded if you have installed this app before.";
+    details?.raw?.note ||
+    "Offer should be completed within the specified period. You will not be rewarded if you have installed this app before or if you are an old user.";
 
   const disclaimer =
     details?.disclaimer ||
-    "Fake Installs will not be entertained and will lead to deactivation of your account.";
+    details?.raw?.disclaimer ||
+    "Fake installs or registrations will not be entertained and will lead to the deactivation of your account.";
 
   const handleCTAClick = async () => {
     if (!offerId) return;
@@ -195,16 +197,16 @@ export default function SDKDetailsPage({
             onClick={() => onBack?.()}
           >
             <svg
-              width="28"
-              height="28"
+              width="24"
+              height="24"
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
                 d="M15 6L9 12L15 18"
-                stroke="#059669"
-                strokeWidth="2"
+                stroke="#0f172a"
+                strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />

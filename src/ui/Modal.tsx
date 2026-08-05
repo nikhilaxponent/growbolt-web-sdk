@@ -73,13 +73,13 @@ export default function Modal({
             {typeof onAction === "function" ? (
               <button
                 className="gb-modal-action-pill"
-                aria-label="Open My Progress"
+                aria-label="Open Offer Status"
                 onClick={onAction}
               >
                 <span className="">
                   <img src={statusIcon} alt="status" />
                 </span>
-                <span className="pill-text">My Progress</span>
+                <span className="pill-text">Offer Status</span>
                 <span className="pill-chevron" aria-hidden>
                   <svg
                     width="28"
@@ -90,7 +90,7 @@ export default function Modal({
                   >
                     <path
                       d="M9 6L15 12L9 18"
-                      stroke="#059669"
+                      stroke="#0f172a"
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"

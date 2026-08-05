@@ -1,24 +1,89 @@
 import { logger } from "../services/logger/logger";
 import { isMobilePlatform } from "./device";
 
+interface NativeHostWindow {
+  /** Explicit opt-in flag a React Native host sets once it handles openURL. */
+  growboltNativeOpen?: boolean;
+  ReactNativeWebView?: { postMessage?: (msg: string) => void };
+  webkit?: {
+    messageHandlers?: { growbolt?: { postMessage?: (msg: unknown) => void } };
+  };
+  GrowBoltAndroid?: { openURL?: (url: string) => void };
+}
+
 /**
- * Best-effort navigation to an external URL (e.g. a Play Store / App Store link).
- * Returns true if navigation was initiated.
+ * When running inside a native WebView host that has opted in, hand the URL to
+ * the host to open and return true.
  *
- * Mobile / Tablet behavior:
- *   Mobile devices (phones and tablets) must NEVER be blocked by popup blockers or
- *   forced into QR code modals. If top-level navigation throws due to cross-origin
- *   iframe sandboxing, we attempt window.open, and if blocked (or on mobile), we
- *   perform a direct same-frame navigation `window.location.href = url`.
- *   On mobile WebViews and browsers, this immediately launches the store app or
- *   triggers the host WebView's navigation handler.
+ * WHY: inside a WebView we must NOT open a store link via window.location.
+ * Android/iOS WebViews intercept programmatic navigations inconsistently
+ * (shouldOverrideUrlLoading / onShouldStartLoadWithRequest do not fire reliably
+ * for window.location changes), so the same tap sometimes opens the store app,
+ * sometimes loads the store web page inside the WebView, and sometimes errors
+ * with ERR_UNKNOWN_URL_SCHEME on market:// links. Handing the URL to the host
+ * makes it open exactly once via the OS (Intent / Linking / UIApplication.open),
+ * which reliably resolves the tracker redirect chain and launches the store.
  *
- * Desktop behavior:
- *   Desktop attempts top-level or popup navigation. If neither is available, it returns false
- *   so ClaimService can surface the scannable QR modal.
+ * Opt-in is required so existing hosts that don't implement a handler keep the
+ * previous navigation behavior (non-breaking):
+ *   - React Native : set window.growboltNativeOpen = true, then onMessage →
+ *                    {type:"growbolt:openURL", url} → Linking.openURL
+ *   - iOS WKWebView: register a "growbolt" script message handler →
+ *                    UIApplication.shared.open
+ *   - Android      : addJavascriptInterface(obj, "GrowBoltAndroid") with
+ *                    openURL(url) → startActivity(ACTION_VIEW)
+ */
+function requestNativeOpen(url: string): boolean {
+  if (typeof window === "undefined") return false;
+  const w = window as unknown as NativeHostWindow;
+
+  // Android JS interface and iOS message handler exist only when the host
+  // registered them, so they are inherently opt-in. React Native's
+  // ReactNativeWebView is always present, so it additionally requires the
+  // explicit growboltNativeOpen flag.
+  const androidBridge = typeof w.GrowBoltAndroid?.openURL === "function";
+  const iosBridge =
+    typeof w.webkit?.messageHandlers?.growbolt?.postMessage === "function";
+  const rnBridge =
+    w.growboltNativeOpen === true &&
+    typeof w.ReactNativeWebView?.postMessage === "function";
+
+  if (!androidBridge && !iosBridge && !rnBridge) return false;
+
+  const payload = JSON.stringify({ type: "growbolt:openURL", url });
+  try {
+    if (androidBridge) {
+      w.GrowBoltAndroid!.openURL!(url);
+      return true;
+    }
+    if (iosBridge) {
+      w.webkit!.messageHandlers!.growbolt!.postMessage!(payload);
+      return true;
+    }
+    w.ReactNativeWebView!.postMessage!(payload);
+    return true;
+  } catch (err) {
+    logger.error("Native open bridge failed", err);
+    return false;
+  }
+}
+
+/**
+ * Open an external URL (e.g. a Play Store / App Store link) in the most
+ * reliable way for the current context.
+ *
+ *   1. Native WebView host (opted in) → host opens it exactly once.
+ *   2. iframe render mode             → top-level navigation, then popup.
+ *   3. Plain web / mobile browser     → same-frame navigation.
+ *
+ * Returns true if the open was initiated, false if it could not be (so
+ * ClaimService can surface the QR modal on desktop).
  */
 export function openExternalUrl(url: string): boolean {
   if (!url || typeof window === "undefined") return false;
+
+  // 1. Native WebView host — deterministic single open, no WebView navigation.
+  if (requestNativeOpen(url)) return true;
 
   const isMobile = isMobilePlatform();
 
@@ -26,7 +91,7 @@ export function openExternalUrl(url: string): boolean {
     const inIframe = window.top != null && window.top !== window.self;
 
     if (inIframe) {
-      // 1. Try top-level same-tab navigation
+      // Try top-level same-tab navigation.
       try {
         if (window.top?.location) {
           window.top.location.href = url;
@@ -35,26 +100,22 @@ export function openExternalUrl(url: string): boolean {
       } catch {
         /* sandbox / CORS blocked top navigation */
       }
-
-      // 2. Try window.open popup
+      // Try a popup that escapes the offerwall iframe sandbox.
       try {
         const popup = window.open(url, "_blank", "noopener,noreferrer");
         if (popup) return true;
       } catch {
         /* popup blocked */
       }
-
-      // 3. On mobile / tablet inside iframe:
-      // Perform same-frame navigation which is guaranteed to succeed and trigger store link handoff
+      // Mobile inside an iframe: same-frame navigation reliably hands off.
       if (isMobile) {
         window.location.href = url;
         return true;
       }
-
       return false;
     }
 
-    // 4. Direct mode (not in an iframe)
+    // 4. Not in an iframe (inline mobile browser / desktop).
     window.location.href = url;
     return true;
   } catch (err) {

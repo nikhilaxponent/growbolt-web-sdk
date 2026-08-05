@@ -20,6 +20,32 @@ export function getCurrencySymbol(currencyStr: string | undefined): string {
   return normalized === "INR" || normalized === "₹" ? "₹" : "$";
 }
 
+export function matchesCategory(offerModel: any, selectedCategory: string): boolean {
+  if (!selectedCategory || selectedCategory.toLowerCase() === "all") {
+    return true;
+  }
+
+  const sel = selectedCategory.toLowerCase().trim();
+  const raw = offerModel?.raw || offerModel || {};
+
+  const fullCats: any[] = raw.full_categories || raw.categories || raw.tags || [];
+
+  if (!Array.isArray(fullCats) || fullCats.length === 0) {
+    return false;
+  }
+
+  return fullCats.some((cat: any) => {
+    if (!cat) return false;
+    if (typeof cat === "object") {
+      const title = String(cat.title || cat.name || "").toLowerCase();
+      const id = String(cat.id || "").toLowerCase();
+      return title === sel || id === sel || title.includes(sel) || sel.includes(title);
+    }
+    const str = String(cat).toLowerCase();
+    return str === sel || str.includes(sel) || sel.includes(str);
+  });
+}
+
 export function deriveUiCategory(offer: any): "apps" | "games" | undefined {
   const tags = (offer?.tags || []).map((t: unknown) => String(t).toLowerCase());
   const categories = (offer?.full_categories || []).map((c: any) => {
@@ -32,6 +58,31 @@ export function deriveUiCategory(offer: any): "apps" | "games" | undefined {
   if (/\bgame/.test(haystack)) return "games";
   if (/\bapp/.test(haystack)) return "apps";
   return undefined;
+}
+
+export function formatExpiryDuration(expiry: any, expiryType?: any): string {
+  if (expiry === null || expiry === undefined || expiry === "" || expiry === 0 || expiry === "0") {
+    return "Instant";
+  }
+
+  const str = String(expiry).trim();
+  if (!str || str === "0") return "Instant";
+
+  if (/[a-zA-Z]/.test(str)) {
+    return str;
+  }
+
+  const num = Number(str);
+  if (!Number.isNaN(num) && num > 0) {
+    const typeStr = String(expiryType || "").toLowerCase();
+    let unit = "Days";
+    if (typeStr.includes("hour")) unit = "Hours";
+    else if (typeStr.includes("min")) unit = "Mins";
+    else if (typeStr.includes("day")) unit = "Days";
+    return `${num} ${unit}`;
+  }
+
+  return "Instant";
 }
 
 export function mapApiOfferToModel(offer: any) {
@@ -65,11 +116,7 @@ export function mapApiOfferToModel(offer: any) {
     currency_icon,
     logo: offer.logo,
     earn: `${currency_icon ? "" : currencySymbol}${formatAmount(payoutTotal)}`,
-    duration:
-      offer?.expiry > 0
-        ? `${offer.expiry} ${offer?.expiry_type === "hours" ? "Hours" : "Days"
-        }`
-        : "Instant",
+    duration: formatExpiryDuration(offer?.expiry, offer?.expiry_type),
     device: deviceLabel,
     deviceOs: primaryOs,
     category: deriveUiCategory(offer),

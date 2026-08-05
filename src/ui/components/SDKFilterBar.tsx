@@ -107,44 +107,29 @@ const SDKFilterBar: React.FC<Props> = ({
   return (
     <div className="sdk-filter-bar rounded-md p-3 mb-4">
       <div className="filter-row">
-        {/* Desktop Static Categories */}
+        {/* Desktop Dynamic Categories */}
         <div className="filter-pills desktop-categories">
           <button
             aria-pressed={active === "all"}
             className={pillClass("all")}
             onClick={() => handleCategory("all")}
           >
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-              <path d="M9 11l2 2 4-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M12 2a9 9 0 109 9 9 9 0 00-9-9z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
             All
           </button>
-          <button
-            aria-pressed={active === "apps"}
-            className={pillClass("apps")}
-            onClick={() => handleCategory("apps")}
-          >
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-              <rect x="3" y="3" width="8" height="8" stroke="currentColor" strokeWidth="1.4" rx="1" />
-              <rect x="13" y="3" width="8" height="8" stroke="currentColor" strokeWidth="1.4" rx="1" />
-              <rect x="3" y="13" width="8" height="8" stroke="currentColor" strokeWidth="1.4" rx="1" />
-              <rect x="13" y="13" width="8" height="8" stroke="currentColor" strokeWidth="1.4" rx="1" />
-            </svg>
-            Apps
-          </button>
-          <button
-            aria-pressed={active === "games"}
-            className={pillClass("games")}
-            onClick={() => handleCategory("games")}
-          >
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-              <path d="M6 12c0-2 1.5-4 3.5-4h5c2 0 3.5 2 3.5 4v2a3 3 0 01-3 3h-6a3 3 0 01-3-3v-2z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M9 11v2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M15 11v2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            Games
-          </button>
+          {categories.map((cat) => {
+            const catId = String(cat.id || cat.title || "").toLowerCase();
+            const catTitle = cat.title || cat.name || cat.id;
+            return (
+              <button
+                key={cat.id || cat.title}
+                aria-pressed={active.toLowerCase() === catId}
+                className={pillClass(catId)}
+                onClick={() => handleCategory(catId)}
+              >
+                {catTitle}
+              </button>
+            );
+          })}
         </div>
 
         {/* Mobile Dynamic Categories */}
@@ -156,16 +141,20 @@ const SDKFilterBar: React.FC<Props> = ({
           >
             All
           </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              aria-pressed={active === cat.id}
-              className={pillClass(cat.id)}
-              onClick={() => handleCategory(cat.id)}
-            >
-              {cat.title}
-            </button>
-          ))}
+          {categories.map((cat) => {
+            const catId = String(cat.id || cat.title || "").toLowerCase();
+            const catTitle = cat.title || cat.name || cat.id;
+            return (
+              <button
+                key={cat.id || cat.title}
+                aria-pressed={active.toLowerCase() === catId}
+                className={pillClass(catId)}
+                onClick={() => handleCategory(catId)}
+              >
+                {catTitle}
+              </button>
+            );
+          })}
         </div>
 
         <div className="filter-search">

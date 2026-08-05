@@ -112,6 +112,7 @@ export default function ProgressPage({ onBack }: Props) {
           <div style={{ fontSize: 48, marginBottom: 16 }}>
             <img src={emptyIcon} alt="Empty" width={150} height={150} />
           </div>
+          <p style={{ fontSize: 16, color: "#999", marginTop: 4 }}>Complete a new offer to start earning rewards</p>
           <div
             className="earn-pill"
             onClick={onBack}
@@ -126,7 +127,6 @@ export default function ProgressPage({ onBack }: Props) {
           >
             Explore offer
           </div>
-          <p style={{ fontSize: 16, color: "#999", marginTop: 4 }}>Complete a new offer to start earning rewards</p>
         </div>
       )}
 

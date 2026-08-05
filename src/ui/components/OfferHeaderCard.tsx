@@ -29,13 +29,15 @@ export default function OfferHeaderCard({
       <div className="offer-header-left" style={{ flex: 1, minWidth: 0 }}>
         {logo && <img src={logo} alt="logo" className="offer-header-logo" />}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          {/* Desktop Header Layout */}
+          <div className="offer-header-desktop-row" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <span className="offer-header-title" style={{ marginRight: 4 }}>{title}</span>
             {duration && <RewardBadge small>{duration}</RewardBadge>}
             {isAndroid && (
               <img
                 src={androidIcon}
                 alt="Android"
+                className="device-os-icon"
                 style={{ width: 20, height: 20, flexShrink: 0 }}
               />
             )}
@@ -43,6 +45,7 @@ export default function OfferHeaderCard({
               <img
                 src={iosIcon}
                 alt="iOS"
+                className="device-os-icon"
                 style={{ width: 20, height: 20, flexShrink: 0 }}
               />
             )}
@@ -50,10 +53,27 @@ export default function OfferHeaderCard({
           {subtitle ? (
             <RichContent
               value={subtitle}
-              className="offer-header-sub"
+              className="offer-header-sub offer-header-sub-desktop"
               as="div"
             />
           ) : null}
+
+          {/* Mobile Header Layout: Title -> Subtitle -> Duration */}
+          <div className="offer-header-mobile-col" style={{ display: "none" }}>
+            <div className="offer-header-title">{title}</div>
+            {subtitle ? (
+              <RichContent
+                value={subtitle}
+                className="offer-header-sub"
+                as="div"
+              />
+            ) : null}
+            {duration && (
+              <div style={{ marginTop: "4px", display: "inline-flex", width: "fit-content", alignSelf: "flex-start" }}>
+                <RewardBadge small>{duration}</RewardBadge>
+              </div>
+            )}
+          </div>
         </div>
       </div>
       <div className="offer-header-right">

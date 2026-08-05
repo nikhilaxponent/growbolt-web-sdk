@@ -2,7 +2,7 @@
 import React, { useMemo, useState, Suspense, useEffect } from "react";
 import type { OfferModel } from "./types";
 import statusIcon from "./assets/status.svg";
-import { mapApiOfferToModel } from "./mapOffer";
+import { mapApiOfferToModel, matchesCategory } from "./mapOffer";
 import { useSDK } from "./hooks/useSDK";
 
 const Modal = React.lazy(() => import("./Modal"));
@@ -81,14 +81,13 @@ export default function SDKModalPage({
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const list = sourceItems.filter((m) => {
-      if (category !== "all") {
-        const cat = (m as any).category;
-        if (!cat || cat !== category) return false;
+      if (category && category !== "all") {
+        if (!matchesCategory(m, category)) return false;
       }
 
-      if (q && remoteItems === null) {
-        const name = (m.name || "").toString().toLowerCase();
-        const subtitle = ((m as any).subtitle || "").toString().toLowerCase();
+      if (q) {
+        const name = (m.name || (m as any).raw?.title || "").toString().toLowerCase();
+        const subtitle = ((m as any).subtitle || (m as any).raw?.description || "").toString().toLowerCase();
         if (!name.includes(q) && !subtitle.includes(q)) return false;
       }
 
@@ -134,7 +133,7 @@ export default function SDKModalPage({
     <Suspense fallback={null}>
       <Modal
         open={open}
-        title={showStatus ? "My Progress" : title}
+        title={showStatus ? "Offer Status" : title}
         onClose={onClose}
         className="sdk-modal-page"
         onAction={!showStatus ? () => setShowStatus(true) : undefined}
@@ -156,7 +155,7 @@ export default function SDKModalPage({
               </div>
               <div className="mobile-offer-status-arrow">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
             </div>

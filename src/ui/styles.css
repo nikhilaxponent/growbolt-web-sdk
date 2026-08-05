@@ -245,8 +245,8 @@
   right: 0;
   height: 45vh;
   min-height: 200px;
-  border-top-left-radius: 18px;
-  border-top-right-radius: 18px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
   overflow: hidden;
   z-index: 0;
   margin: 0;
@@ -286,13 +286,32 @@
   z-index: 1
 }
 
-.gb-modal.sdk-details-modal .gb-modal-body {
-  padding: 0
+.gb-modal.sdk-details-modal {
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
 }
 
-/* lift banner to overlap the modal header so it sits at the very top */
+.gb-modal.sdk-details-modal .gb-modal-header {
+  display: none !important;
+}
+
+.gb-modal.sdk-details-modal .gb-modal-body {
+  padding: 0;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  max-height: 100vh;
+}
+
 .gb-modal.sdk-details-modal .sdk-banner {
-  top: -66px
+  top: 0;
+  height: 260px;
+  min-height: 240px;
+}
+
+.sdk-details-root {
+  padding-top: 260px;
 }
 
 /* back button inside details modal */
@@ -303,16 +322,14 @@
   z-index: 5;
   background: #fff;
   border: 0;
-  width: 25px;
-  height: 25px;
+  width: 35px;
+  height: 35px;
   border-radius: 999px;
-  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.12);
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.16);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-weight: 800;
-  font-size: 18px
 }
 
 .details-back-btn:hover {
@@ -393,7 +410,7 @@
 
 .sdk-overlap-wrapper {
   margin-top: -84px;
-  padding: 0 12px
+  padding: 0
 }
 
 /* Section spacing */
@@ -467,15 +484,25 @@
 .reward-badge {
   background: linear-gradient(90deg, #ffd26b, #ffb020);
   color: #fff;
-  padding: 6px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
-  font-weight: 700
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  max-width: max-content;
 }
 
 .reward-badge-sm {
-  padding: 4px 8px;
+  padding: 3px 10px;
   font-size: 12px;
-  color: #fff
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  max-width: max-content;
 }
 
 .instruction-card {
@@ -1143,45 +1170,75 @@
 /* Responsive: mobile first adjustments */
 @media (max-width: 640px) {
   .sdk-banner {
-    height: 30vh;
-    min-height: 120px
+    height: 220px !important;
+    min-height: 220px !important;
+    top: 0 !important;
   }
 
   .gb-modal.sdk-details-modal .sdk-banner {
-    top: -48px
+    top: 0 !important;
   }
 
   .sdk-details-root {
-    padding-top: 30vh
+    padding-top: 220px !important;
   }
 
   .sdk-details-container {
     padding: 16px;
-    padding-bottom: 92px
+    padding-bottom: 105px !important;
+  }
+
+  .sticky-cta-wrap {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 9999 !important;
+    padding: 12px 16px !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-top: none !important;
+    margin-top: 0 !important;
+    box-sizing: border-box !important;
+    box-shadow: none !important;
+    pointer-events: none !important;
+  }
+
+  .sticky-cta {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 14px !important;
+    padding: 14px 20px !important;
+    font-size: 16px !important;
+    pointer-events: auto !important;
+    box-shadow: 0 8px 25px rgba(22, 199, 132, 0.45) !important;
   }
 
   .sdk-overlap-wrapper {
     margin-top: -56px;
-    padding: 0 8px
+    padding: 0
   }
 
   /* Keep header horizontal on small screens and center right-stack vertically */
   .offer-header-card {
     flex-direction: row;
-    align-items: flex-start;
-    padding: 14px
+    align-items: center;
+    padding: 10px 14px;
   }
 
   .offer-header-left {
-    gap: 10px;
+    gap: 12px;
     flex: 1;
-    min-width: 0
+    min-width: 0;
+    align-items: center;
   }
 
   .offer-header-logo {
-    width: 48px;
-    height: 48px;
-    flex: 0 0 48px
+    width: 64px;
+    height: 64px;
+    flex: 0 0 64px;
+    border-radius: 14px;
   }
 
   .offer-header-title {
@@ -1381,7 +1438,7 @@
 
   .sdk-overlap-wrapper {
     margin-top: -72px;
-    padding: 0 10px
+    padding: 0
   }
 
   .offer-header-logo {
@@ -1706,6 +1763,25 @@
   margin-top: 6px
 }
 
+.payment-description ul,
+.payment-description ol,
+.instruction-card ul,
+.instruction-card ol {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+  list-style: none !important;
+  list-style-type: none !important;
+}
+
+.payment-description li,
+.instruction-card li {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+  list-style: none !important;
+  list-style-type: none !important;
+  margin-bottom: 4px;
+}
+
 .offer-description {
   font-size: 14px;
   color: #475569;
@@ -1813,4 +1889,34 @@
   opacity: 0.5;
   cursor: not-allowed;
   background-color: transparent;
+}
+
+.offer-header-mobile-col {
+  display: none !important;
+}
+
+.offer-header-desktop-row,
+.offer-header-sub-desktop {
+  display: block;
+}
+
+.offer-header-desktop-row {
+  display: flex !important;
+}
+
+@media (max-width: 640px) {
+  .device-os-icon {
+    display: none !important;
+  }
+
+  .offer-header-desktop-row,
+  .offer-header-sub-desktop {
+    display: none !important;
+  }
+
+  .offer-header-mobile-col {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 3px !important;
+  }
 }
