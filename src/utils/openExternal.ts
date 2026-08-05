@@ -69,6 +69,41 @@ function requestNativeOpen(url: string): boolean {
 }
 
 /**
+ * Rewrite Android intent:// store links to an openable https URL.
+ *
+ * intent:// URLs (produced by Google Play's web_auto_redirect) cannot be loaded
+ * as a web page and are not understood by Linking.openURL / iOS / browsers —
+ * they surface as ERR_UNKNOWN_URL_SCHEME. For Play Store targets we use the
+ * intent's browser_fallback_url when present, otherwise rebuild it as
+ * https://play.google.com/... (referrer/params preserved). Non-store intent://
+ * deep links are left untouched so native hosts can parse them.
+ */
+function normalizeStoreUrl(url: string): string {
+  if (!url.startsWith("intent://")) return url;
+  try {
+    const hashIdx = url.indexOf("#Intent");
+    const fragment = hashIdx >= 0 ? url.slice(hashIdx) : "";
+
+    // Prefer the intent's declared web fallback (canonical https URL).
+    const fb = /S\.browser_fallback_url=([^;]+)/.exec(fragment);
+    if (fb?.[1]) {
+      const decoded = decodeURIComponent(fb[1]);
+      if (/^https?:\/\//i.test(decoded)) return decoded;
+    }
+
+    // Otherwise, for Play Store targets, rebuild as an https app-link.
+    const head = hashIdx >= 0 ? url.slice(0, hashIdx) : url;
+    const rest = head.slice("intent://".length); // host/path?query
+    if (/^play\.google\.com\//i.test(rest) || /[?&]id=/.test(rest)) {
+      return "https://" + rest;
+    }
+    return url;
+  } catch {
+    return url;
+  }
+}
+
+/**
  * Open an external URL (e.g. a Play Store / App Store link) in the most
  * reliable way for the current context.
  *
@@ -79,8 +114,13 @@ function requestNativeOpen(url: string): boolean {
  * Returns true if the open was initiated, false if it could not be (so
  * ClaimService can surface the QR modal on desktop).
  */
-export function openExternalUrl(url: string): boolean {
-  if (!url || typeof window === "undefined") return false;
+export function openExternalUrl(rawUrl: string): boolean {
+  if (!rawUrl || typeof window === "undefined") return false;
+
+  // Rewrite Android intent:// store links to a plain https URL so every host
+  // (native bridge, Linking, iOS, browser) can open them — intent:// is not
+  // loadable as a web page (ERR_UNKNOWN_URL_SCHEME).
+  const url = normalizeStoreUrl(rawUrl);
 
   // 1. Native WebView host — deterministic single open, no WebView navigation.
   if (requestNativeOpen(url)) return true;

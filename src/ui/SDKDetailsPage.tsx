@@ -12,7 +12,7 @@ import completedIcon from "./assets/completed.svg";
 import progressIcon from "./assets/progress.svg";
 import lockedIcon from "./assets/locked.svg";
 import RichContent from "./components/RichContent";
-import { formatAmount, isValidIcon, formatExpiryDuration } from "./mapOffer";
+import { formatAmount, formatExpiryDuration } from "./mapOffer";
 const Modal = React.lazy(() => import("./Modal"));
 const BannerSection = React.lazy(() => import("./components/BannerSection"));
 const OfferHeaderCard = React.lazy(
@@ -34,6 +34,7 @@ type Props = {
     currency?: string;
     device?: string;
     deviceOs?: string;
+    duration?: string;
   } | null;
   onClose?: () => void;
   onBack?: () => void;
@@ -279,46 +280,66 @@ export default function SDKDetailsPage({
 
                 <Suspense fallback={null}>
                   {Array.isArray(details?.payments) &&
-                    details.payments.length > 0 && (
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "12px",
-                          marginTop: "16px",
-                        }}
-                      >
-                        {details.payments.map((payment: any, index: number) => (
-                          <PaymentMilestoneCard
-                            key={payment.id || index}
-                            step={index + 1}
-                            title={payment.title || payment.goal}
-                            description={payment?.description}
-                            reward={
-                              <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
-                                {isValidIcon(payment.currency_icon) && (
-                                  <img
-                                    src={payment.currency_icon}
-                                    alt="currency"
-                                    style={{ width: "25px", height: "25px", objectFit: "contain" }}
-                                  />
-                                )}
-                                {formatAmount(payment.user_payout)}
-                              </span>
-                            }
-                            statusIcon={
-                              payment.status === "completed"
-                                ? completedIcon
-                                : payment.status === "active" ||
-                                  payment.status === "pending"
-                                  ? progressIcon
-                                  : lockedIcon
-                            }
-                            onClaim={handleCTAClick}
-                          />
-                        ))}
-                      </div>
-                    )}
+                    details.payments.length > 0 && (() => {
+                      const paymentsList = details.payments;
+                      const activeIndex = paymentsList.findIndex(
+                        (p: any) =>
+                          p.status !== "completed" &&
+                          p.status !== "rewarded" &&
+                          !p.completed
+                      );
+
+                      return (
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "12px",
+                            marginTop: "16px",
+                          }}
+                        >
+                          {paymentsList.map((payment: any, index: number) => {
+                            const isCompleted =
+                              payment.status === "completed" ||
+                              payment.status === "rewarded" ||
+                              payment.completed === true;
+
+                            const isActive =
+                              !isCompleted &&
+                              (activeIndex === -1 ? false : index === activeIndex);
+
+                            const icon = isCompleted
+                              ? completedIcon
+                              : isActive
+                              ? progressIcon
+                              : lockedIcon;
+
+                            return (
+                              <PaymentMilestoneCard
+                                key={payment.id || index}
+                                step={index + 1}
+                                title={payment.title || payment.goal}
+                                description={payment?.description}
+                                reward={
+                                  <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                                    {isValidIcon(payment.currency_icon) && (
+                                      <img
+                                        src={payment.currency_icon}
+                                        alt="currency"
+                                        style={{ width: "25px", height: "25px", objectFit: "contain" }}
+                                      />
+                                    )}
+                                    {formatAmount(payment.user_payout)}
+                                  </span>
+                                }
+                                statusIcon={icon}
+                                onClaim={handleCTAClick}
+                              />
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
                 </Suspense>
 
                 {note && (
