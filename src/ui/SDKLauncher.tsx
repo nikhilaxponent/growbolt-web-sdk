@@ -20,6 +20,42 @@ export default function SDKLauncher({ onClose }: SDKLauncherProps) {
   const [selectedOffer, setSelectedOffer] = React.useState<any | null>(null);
   const [loadError, setLoadError] = React.useState<string | null>(null);
 
+  const detailsOpenRef = React.useRef(detailsOpen);
+  React.useEffect(() => {
+    detailsOpenRef.current = detailsOpen;
+  }, [detailsOpen]);
+
+  const handleClose = React.useCallback(() => {
+    if (onClose) onClose();
+    else setOpen(false);
+  }, [onClose]);
+
+  // Map the hardware / browser Back button to in-offerwall navigation:
+  // Details → list (same as the back arrow), then list → close. Without this,
+  // Back inside a WebView exits the whole offerwall, because the list↔details
+  // navigation is React state, not browser history.
+  React.useEffect(() => {
+    if (typeof window === "undefined" || !window.history) return;
+
+    // Arm a history entry so the first Back press is captured by the offerwall.
+    window.history.pushState({ gbOfferwall: true }, "");
+
+    const onPop = () => {
+      if (detailsOpenRef.current) {
+        // On the details page → return to the list and re-arm the trap.
+        setDetailsOpen(false);
+        setOpen(true);
+        window.history.pushState({ gbOfferwall: true }, "");
+      } else {
+        // On the list → close the offerwall.
+        handleClose();
+      }
+    };
+
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [handleClose]);
+
   React.useEffect(() => {
     async function loadOffers() {
       if (!sdk.config?.apiKey) {
@@ -73,7 +109,7 @@ export default function SDKLauncher({ onClose }: SDKLauncherProps) {
             </div>
           }
           items={offers}
-          onClose={onClose ? onClose : () => setOpen(false)}
+          onClose={handleClose}
           onItemClick={(m) => {
             setSelectedOffer(m);
             setOpen(false);
