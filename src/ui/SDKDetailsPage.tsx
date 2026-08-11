@@ -281,7 +281,13 @@ export default function SDKDetailsPage({
                 <Suspense fallback={null}>
                   {Array.isArray(details?.payments) &&
                     details.payments.length > 0 && (() => {
-                      const paymentsList = details.payments;
+                      // Only show milestone steps that actually reward the user.
+                      // A step with 0 payout (e.g. a free install) is meaningless
+                      // to display, so filter those out before rendering.
+                      const paymentsList = details.payments.filter(
+                        (p: any) => Number(p?.user_payout) > 0,
+                      );
+                      if (paymentsList.length === 0) return null;
                       const activeIndex = paymentsList.findIndex(
                         (p: any) =>
                           p.status !== "completed" &&
