@@ -7,7 +7,10 @@ import type {
 } from './BridgeProtocol';
 import type { SDKService } from '../types/service';
 
-const READY_TIMEOUT_MS = 15_000;
+// The offerwall bundle is ~1 MB; on slow mobile networks inside a WebView it
+// can take well over 15s to download, parse, and fire GB_READY. 30s avoids
+// false timeouts while still failing in a bounded time on a real error.
+const READY_TIMEOUT_MS = 30_000;
 
 export interface PostMessageBridgeCallbacks {
   onReady: () => void;

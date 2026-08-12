@@ -3,6 +3,7 @@ import type { SDKService } from '../../types/service';
 import { PostMessageBridge } from '../../bridge/PostMessageBridge';
 import { sdkState } from '../../core/state/sdkState';
 import { emitter } from '../../core/events/emitter';
+import { logger } from '../../services/logger/logger';
 
 const OVERLAY_ID = 'growbolt-iframe-overlay';
 const SPIN_STYLE_ID = 'growbolt-spin-keyframes';
@@ -65,13 +66,18 @@ export class IframeRenderer implements Renderer {
     const iframe = document.createElement('iframe');
     iframe.src = this.offerwallUrl;
     iframe.title = 'GrowBolt Offerwall';
+    // Load diagnostic — distinguishes "iframe never loaded" (network / CSP /
+    // 404) from "loaded but handshake failed" when debugging.
+    iframe.addEventListener('load', () => {
+      logger.debug('Offerwall iframe document loaded:', this.offerwallUrl);
+    });
     // allow-same-origin is required: without it the browser assigns the iframe
     // a null opaque origin, so event.origin === "null" on both sides and all
     // postMessage origin checks fail silently (GB_READY never delivered).
     // The offerwall bundle is our own trusted code so this is safe.
     iframe.setAttribute(
       'sandbox',
-      'allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox',
+      'allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox',
     );
     Object.assign(iframe.style, {
       position: 'absolute',
@@ -102,6 +108,11 @@ export class IframeRenderer implements Renderer {
 
     this.bridge = new PostMessageBridge(iframe, iframeOrigin, service, {
       onReady: () => {
+        // Forward the full config (including apiKey) to the offerwall. It is
+        // sent only to our own offerwall origin via an origin-validated
+        // postMessage, and the offerwall UI uses config.apiKey as its
+        // "initialized" signal. Do NOT strip apiKey here — doing so makes the
+        // offerwall render a "SDK not initialized" error.
         this.bridge?.sendInit({
           sub4: service.sub4,
           sessionId: service.sessionId,
@@ -124,7 +135,7 @@ export class IframeRenderer implements Renderer {
   }
 
   private callbacks_onError(msg: string): void {
-    console.error(msg);
+    logger.error(msg);
     this.close();
   }
 
